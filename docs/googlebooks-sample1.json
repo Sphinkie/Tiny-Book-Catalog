@@ -1,0 +1,89 @@
+{
+	"kind": "books#volumes",
+	"totalItems": 1,
+	"items": [
+		{
+			"kind": "books#volume",
+			"id": "-ePVubyplyEC",
+			"etag": "ZrOo+ZaLDng",
+			"selfLink": "https://www.googleapis.com/books/v1/volumes/-ePVubyplyEC",
+			"volumeInfo": {
+				"title": "Le Poignard et le poison",
+				"publisher": "J Editions",
+				"publishedDate": "1995",
+				"industryIdentifiers": [
+					{
+						"type": "ISBN_13",
+						"identifier": "9791090278349"
+					}
+				],
+				"readingModes": {
+					"text": true,
+					"image": true
+				},
+				"pageCount": 253,
+				"printType": "BOOK",
+				"maturityRating": "NOT_MATURE",
+				"allowAnonLogging": true,
+				"contentVersion": "1.1.1.0.preview.3",
+				"imageLinks": {
+					"smallThumbnail": "http://books.google.com/books/content?id=-ePVubyplyEC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+					"thumbnail": "http://books.google.com/books/content?id=-ePVubyplyEC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+				},
+				"language": "fr",
+				"previewLink": "http://books.google.fr/books?id=-ePVubyplyEC&printsec=frontcover&dq=isbn:9791090278349&hl=&cd=1&source=gbs_api",
+				"infoLink": "https://play.google.com/store/books/details?id=-ePVubyplyEC&source=gbs_api",
+				"canonicalVolumeLink": "https://market.android.com/details?id=book--ePVubyplyEC"
+			},
+			"saleInfo": {
+				"country": "FR",
+				"saleability": "FOR_SALE",
+				"isEbook": true,
+				"listPrice": {
+					"amount": 8.49,
+					"currencyCode": "EUR"
+				},
+				"retailPrice": {
+					"amount": 8.49,
+					"currencyCode": "EUR"
+				},
+				"buyLink": "https://play.google.com/store/books/details?id=-ePVubyplyEC&rdid=book--ePVubyplyEC&rdot=1&source=gbs_api",
+				"offers": [
+					{
+						"finskyOfferType": 1,
+						"listPrice": {
+							"amountInMicros": 8490000.0,
+							"currencyCode": "EUR"
+						},
+						"retailPrice": {
+							"amountInMicros": 8490000.0,
+							"currencyCode": "EUR"
+						},
+						"giftable": true
+					}
+				]
+			},
+			"accessInfo": {
+				"country": "FR",
+				"viewability": "PARTIAL",
+				"embeddable": true,
+				"publicDomain": false,
+				"textToSpeechPermission": "ALLOWED",
+				"epub": {
+					"isAvailable": true,
+					"acsTokenLink": "http://books.google.fr/books/download/Le_Poignard_et_le_poison-sample-epub.acsm?id=-ePVubyplyEC&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+				},
+				"pdf": {
+					"isAvailable": true,
+					"acsTokenLink": "http://books.google.fr/books/download/Le_Poignard_et_le_poison-sample-pdf.acsm?id=-ePVubyplyEC&format=pdf&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+				},
+				"webReaderLink": "http://play.google.com/books/reader?id=-ePVubyplyEC&hl=&printsec=frontcover&source=gbs_api",
+				"accessViewStatus": "SAMPLE",
+				"quoteSharingAllowed": false
+			},
+			"searchInfo": {
+				"textSnippet": "L'abbÃ© saxon Erwin appartient Ã  cette Ã©lite de savants, d'Ã©rudits et d'experts que Charlemagne a rÃ©unis autour de lui."
+			}
+		}
+	]
+}

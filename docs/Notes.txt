@@ -1,0 +1,69 @@
+APIS
+===================
+Il y a plusieurs providers d'API permettant de récupérer les infos des livres:
+
+API Google:
+----------
+Exemple d'appel:
+   https://www.googleapis.com/books/v1/volumes?q=isbn:9791090278349
+   https://www.googleapis.com/books/v1/volumes?q=isbn:9782916940380
+   https://www.googleapis.com/books/v1/volumes?q=isbn:9782226257017
+Exemple de retour: 
+   voir fichier joint googlebooks-sample.json.
+
+Note:
+  Souvent, il n'y a pas de thumbnail, alors que les autres sites en ont.
+  voir: https://ctrlq.org/code/20020-query-book-by-isbn
+  Peut s'appeler directement depuis appInventor de la même façon que https://puravidaapps.com/gmail.php
+  Par contre parser le fichier json peut s'averer problématique avec AppInventor...
+
+API Amazon: 
+-----------
+   Apparemment cela utilise http://www.isbndb.com qui demande un login/passwd (il faut un compte AWS), mais qui ne trouve jamais les codes isbn testés ("page not found").
+   https://www.brandonchecketts.com/archives/2009/06
+   ex: 2020403447 
+   ex: 9782205059700
+
+Comparatifs de ces deux APIs:
+------------------------------
+	https://bbvaopen4u.com/en/actualidad/apis-books-amazon-google-books-isbn-and-their-open-apis
+	http://agregationchimie.free.fr/book_isbn.php
+	https://bibliotheques.wordpress.com/2009/07/01/verifier-la-presence-de-ses-isbn-dans-amazon/
+	
+	En résumé:
+	Amazon est beaucoup plus complet (surtout au niveau des images), mais plus complexe à utiliser.
+
+UTILISATION
+====================
+Dans appInventor, on utilise le module tinyDBweb, qui interroge un site avec 2 méthodes:
+  /storeavalue: Stores a value, given a tag and a value
+  /getvalue: Retrieves the value stored under a given tag. Returns the empty string if no value is stored 
+http://tinywebdb.appinventor.mit.edu/
+
+Ce module interroge un site web que l'on doit faire soit-même:
+soit le site existant (mais toujours saturé):
+http://appinventoramazonlist.appspot.com.
+
+soit un site que l'on héberge soi-meme auprès de google, comme expliqué ici :
+
+https://sites.google.com/site/appinventor/amazon-at-the-bookstore
+https://appinventorapi.com/amazon/
+http://www.appinventor.org/bookChapters/chapter13.pdf
+
+Pour installer cette console Google, c'est un peu compliqué:
+Voir ici:
+https://www.easytutoriel.com/creer-site-web-proxy-gratuit-phproxy.html
+
+il faut créer un compte (fait)
+https://console.cloud.google.com/appengine/start?project=custom-tiny-web-db
+
+et installer un logiciel "Cloud SDK for Python" en local:
+https://cloud.google.com/appengine/docs/standard/python/download?hl=fr
+https://cloud.google.com/sdk/docs/?hl=fr
+
+Un exemple d'interface est fourni: customtinywebdb
+il faut l'adapter ensuite pour l'interfacer avec le provider souhaité (ex: amazon)
+http://www.appinventor.org/bookChapters/chapter13.pdf
+
+
+

@@ -1,0 +1,68 @@
+{
+ "kind": "books#volumes",
+ "totalItems": 1,
+ "items": [
+  {
+   "kind": "books#volume",
+   "id": "VAxFjgEACAAJ",
+   "etag": "6NihA1KWIgQ",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/VAxFjgEACAAJ",
+   "volumeInfo": {
+    "title": "Sapiens",
+    "subtitle": "Une brève histoire de l'humanité",
+    "authors": [
+     "Yuval Noah Harari"
+    ],
+    "publishedDate": "2015",
+    "description": "Il y a 100 000 ans, la Terre était habitée par au moins six espèces différentes d'hominidés. Une seule a survécu. Nous, les Homo Sapiens. Comment notre espèce a-t-elle réussi à dominer la planète ? Pourquoi nos ancêtres ont-ils uni leurs forces pour créer villes et royaumes ? Comment en sommes-nous arrivés à créer les concepts de religion, de nation, de droits de l'homme ? A dépendre de l'argent, des livres et des lois ? A devenir esclaves de la bureaucratie, des horaires, de la consommation de masse ? Et à quoi ressemblera notre monde dans le millénaire à venir ? Véritable phénomène d'édition, traduit dans une trentaine de langues, Sapiens est un livre audacieux, érudit et provocateur. Professeur d'Histoire à l'Université hébraïque de Jérusalem, Yuval Noah Harari mêle l'Histoire à la Science pour remettre en cause tout ce que nous pensions savoir sur l'humanité : nos pensées, nos actes, notre héritage... et notre futur.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "2226257012"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9782226257017"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": false
+    },
+    "pageCount": 501,
+    "printType": "BOOK",
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "preview-1.0.0",
+    "language": "fr",
+    "previewLink": "http://books.google.fr/books?id=VAxFjgEACAAJ&dq=isbn:9782226257017&hl=&cd=1&source=gbs_api",
+    "infoLink": "http://books.google.fr/books?id=VAxFjgEACAAJ&dq=isbn:9782226257017&hl=&source=gbs_api",
+    "canonicalVolumeLink": "https://books.google.com/books/about/Sapiens.html?hl=&id=VAxFjgEACAAJ"
+   },
+   "saleInfo": {
+    "country": "FR",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "FR",
+    "viewability": "NO_PAGES",
+    "embeddable": false,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://play.google.com/books/reader?id=VAxFjgEACAAJ&hl=&printsec=frontcover&source=gbs_api",
+    "accessViewStatus": "NONE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "La 4e de couv. indique : &quot;Il y a 100 000 ans, la Terre était habitée par au moins six espèces différentes d&#39;hominidés. Une seule a survécu. Nous, les Homo Sapiens. Comment notre espèce a-t-elle réussi à dominer la planète ?"
+   }
+  }
+ ]
+}
