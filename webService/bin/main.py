@@ -103,19 +103,6 @@ class StoreAValue(webapp.RequestHandler):
     # appel API externe
     url = "https://www.googleapis.com/books/v1/volumes?q=isbn:"+str(tag)+"&country=US"
     ## ----------------
-    ## Methode 1
-    # response = urllib2.urlopen(url) 
-    # contents = response.read()
-    ## ----------------
-    ## Methode 2 
-    # req = urllib2.Request(url, headers={'User-Agent' : "Magic Browser"}) 
-    # response = urllib2.urlopen(req)
-    # contents = response.read()
-    ## ----------------
-    ## Methode 3 : 
-    # response_status,contents = httplib2.Http().request(url)
-    ## ----------------
-    ## Methode 4 : 
     result = urlfetch.fetch(url)
     '''try:
       if result.status_code == 200:
@@ -129,8 +116,6 @@ class StoreAValue(webapp.RequestHandler):
     '''
     contents = result.content
     logging.debug('%s '%(contents))
-    
-    # Clef d'API google: AIzaSyAE3fhCynYsoO7JG8DNFK2QeZPZ4iWOeHs
     
     # -----------------------------------------------------------
     # Erreur 403 Forbidden
