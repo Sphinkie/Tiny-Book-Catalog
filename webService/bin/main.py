@@ -20,22 +20,22 @@ from google.appengine.api import urlfetch
 ### Creation des colonnes de la table StoredData
 ### =============================================================================
 class StoredData(db.Model):
-  tag = db.StringProperty()						# on y stocke le code ISBN
-  value = db.StringProperty(multiline=True)		# on y stocke le OWNER envoyé par le smartphone
-  # Defining value as a string property limits individual values to 500 characters
+  tag     = db.StringProperty()						# on y stocke le code ISBN
+  value   = db.StringProperty(multiline=True)		# on y stocke le OWNER envoyé par le smartphone
+  # Defining value as a string property limits individual values to 500 characters.
   # To remove this limit, define value to be a text property instead, 
   # by commenting out the previous line and replacing it by this one:
   # value db.TextProperty()
   date           = db.DateTimeProperty(required=True, auto_now=True)
-  title          = db.StringProperty(multiline=False)	# on y stocke le TITLE envoyé par l'API externe
-  author         = db.StringProperty(multiline=False)	# on y stocke le AUTHOR envoyé par l'API externe
-  publisher      = db.StringProperty(multiline=False)	# on y stocke le PUBLISHER envoyé par l'API externe
-  publishedDate  = db.StringProperty(multiline=False)	# on y stocke le PUBLISHEDDATE envoyé par l'API externe
-  description    = db.StringProperty(multiline=False)	# on y stocke le DESCRIPTION envoyé par l'API externe
-  language       = db.StringProperty(multiline=False)	# on y stocke le LANGUAGE envoyé par l'API externe
-  smallThumbnail = db.StringProperty(multiline=False)	# on y stocke le SMALLTHUMBNAIL envoyé par l'API externe
-  thumbnail      = db.StringProperty(multiline=False)	# on y stocke le THUMBNAIL envoyé par l'API externe
-  textSnippet    = db.StringProperty(multiline=False)	# on y stocke le TEXTSNIPPET envoyé par l'API externe
+  title          = db.StringProperty()		# on y stocke le TITLE envoyé par l'API externe
+  author         = db.StringProperty()		# on y stocke le AUTHOR envoyé par l'API externe
+  publisher      = db.StringProperty()		# on y stocke le PUBLISHER envoyé par l'API externe
+  publishedDate  = db.StringProperty()		# on y stocke le PUBLISHEDDATE envoyé par l'API externe
+  description    = db.TextProperty()		# on y stocke le DESCRIPTION envoyé par l'API externe
+  language       = db.StringProperty()		# on y stocke le LANGUAGE envoyé par l'API externe
+  smallThumbnail = db.StringProperty()		# on y stocke le SMALLTHUMBNAIL envoyé par l'API externe
+  thumbnail      = db.StringProperty()		# on y stocke le THUMBNAIL envoyé par l'API externe
+  textSnippet    = db.StringProperty()		# on y stocke le TEXTSNIPPET envoyé par l'API externe
   
 
 
@@ -187,49 +187,65 @@ class GetValue(webapp.RequestHandler):
   # ---------------------------------------------------------------
   # Traitement du bouton 'Get value'
   # ---------------------------------------------------------------
-  def get_value(self, tag):
+  def get_value(self, commande):
     responselist = []
     # -------------------------------------------------------------
-    # Si tag = "*"
+    # "isbn:*"	Liste complete des ISBN
     # -------------------------------------------------------------
-    if tag == "*":
-      # on renvoie la liste des ISBN
+    if commande == "isbn:*":
+      # on renvoie la liste complete des ISBN
       query = db.GqlQuery("SELECT tag FROM StoredData")
       results = query.run(limit=100)
       # for item in query: # est aussi possible, car run() est implicite
       for item in results: responselist.append(item.tag)
     # -------------------------------------------------------------
-    # Si tag commence par "*" (* est suivi par un ownerName)
+    # "user:*"		Liste complete des USERS
     # -------------------------------------------------------------
-    elif tag[0] == "*":
-      query = db.GqlQuery("SELECT * FROM StoredData WHERE value = :1", tag[1:])
+    elif commande == "user:*":
+      query = db.GqlQuery("SELECT * FROM StoredData WHERE value = :1", commande[1:])
       results = query.fetch(limit=100)
       for item in results: responselist.append(item.tag)
     # -------------------------------------------------------------
-    # Autres cas (tag est un ISBN)
+    # "user:toto"	Liste des ISBN du user TOTO
     # -------------------------------------------------------------
-    else:
-      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
+    elif commande[0:4] == "user:":
+      query = db.GqlQuery("SELECT * FROM StoredData WHERE value = :1", commande[5:])
+      results = query.fetch(limit=100)
+      for item in results: responselist.append(item.tag)
+    # -------------------------------------------------------------
+    # Autres cas (commande est du type "isbn:9700000000")
+    # -------------------------------------------------------------
+    elif commande[0]==9:
+      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", commande).get() 
       if entry:
-        value = entry.value
         title = entry.title
+        author = entry.author
         publisher = entry.publisher
+        publishedDate = entry.publishedDate
         smallThumbnail = entry.smallThumbnail
-      # Check if it is a html request and if so, clean the tag and value variables.
+      else:
+        title = "titre non trouvé"
+        author = "-"
+        publisher = "-"
+        publishedDate = "-"
+        smallThumbnail = ""
+      # if it is a html request, clean the variables.
       if self.request.get('fmt') == "html":
-        if (value): value = escape(value)
-        if (tag): tag = escape(tag)
         if (title): title = escape(title)
+        if (author): owner = escape(author)
         if (publisher): publisher = escape(publisher)
+        if (publishedDate): publishedDate = escape(publishedDate)
         if (smallThumbnail): smallThumbnail = escape(smallThumbnail)
       # On remplit la liste des valeurs à retourner à l'application
-      responselist = [value,title,publisher,smallThumbnail]
+      responselist = [title,author,publisher,publishedDate,smallThumbnail]
+	else:
+	  responselist = ["unknown book","??","??","??",""]
     # -------------------------------------------------------------
     # Envoi de la reponse
     # -------------------------------------------------------------
     # On ajoute le label "VALUE" à la réponse Json.
     # The TinyWebDB component makes no use of this, but other programs might.
-    WritePhoneOrWeb(self, lambda : json.dump(["VALUE", tag, responselist], self.response.out))
+    WritePhoneOrWeb(self, lambda : json.dump(["VALUE", commande, responselist], self.response.out))
     # Le programme original ne retournait que la valeur de Value
     # WritePhoneOrWeb(self, lambda : json.dump(["VALUE", tag, value], self.response.out))
 
@@ -285,10 +301,12 @@ def write_available_operations(self):
     <ul>
     <li><a href="/storeavalue">/storeavalue</a>: Stores a data, given a tag (isbn) and a value (owner).</li>
     <li><a href="/getvalue">/getvalue</a>: Retrieves the value (list)stored under a given tag (isbn).  Returns the empty string if no value is stored.</br>
-    The list contains: [title, publisher, thumbnail url]</br>
-    The list does not contain: publishedDate, image url, abstract.</li>
-    <li>Special tag "*": returns the list of all tags (isbn) in database</li>
-    <li>Special tag "*username": returns the list of all tags (isbn) which have this username for value (owner)</li>
+    The list contains: [title, author, publisher, publishedDate, small thumbnail url]</br>
+    The list does not contain: image url, description.</li>
+    <li>tag "isbn:*": returns the list of all tags (isbn) in database.</li>
+    <li>tag "isbn:123456789": returns information list about this book (isbn).</li>
+    <li>tag "*user:*": returns the list of all known owners.</li>
+    <li>tag "*user:john": returns the list of all tags (isbn) which have "john" for owner.</li>
     </ul>''')
 
 # ------------------------------------------------------------------------------
