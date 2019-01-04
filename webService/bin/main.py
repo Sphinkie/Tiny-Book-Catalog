@@ -215,7 +215,7 @@ class GetValue(webapp.RequestHandler):
     # -------------------------------------------------------------
     # Autres cas (commande est du type "isbn:9700000000")
     # -------------------------------------------------------------
-    elif commande[0]==9:
+    elif commande[0]=='9':
       entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", commande).get() 
       if entry:
         title = entry.title
