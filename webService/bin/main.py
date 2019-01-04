@@ -215,7 +215,7 @@ class GetValue(webapp.RequestHandler):
     # -------------------------------------------------------------
     # Autres cas (commande est du type "isbn:9700000000")
     # -------------------------------------------------------------
-    elif commande[0]==9:
+    elif commande[0]=='9':
       entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", commande).get() 
       if entry:
         title = entry.title
@@ -239,53 +239,53 @@ class GetValue(webapp.RequestHandler):
       # On remplit la liste des valeurs à retourner à l'application
       responselist = [title,author,publisher,publishedDate,smallThumbnail]
     else:
-      responselist = ["unknown book","??","??","??",""]
-    # -------------------------------------------------------------
-    # Envoi de la reponse
-    # -------------------------------------------------------------
-    # On ajoute le label "VALUE" à la réponse Json.
-    # The TinyWebDB component makes no use of this, but other programs might.
-    WritePhoneOrWeb(self, lambda : json.dump(["VALUE", commande, responselist], self.response.out))
-    # Le programme original ne retournait que la valeur de Value
-    # WritePhoneOrWeb(self, lambda : json.dump(["VALUE", tag, value], self.response.out))
+    	responselist = ["unknown book","??","??","??",""]
+		# -------------------------------------------------------------
+		# Envoi de la reponse
+		# -------------------------------------------------------------
+		# On ajoute le label "VALUE" à la réponse Json.
+		# The TinyWebDB component makes no use of this, but other programs might.
+		WritePhoneOrWeb(self, lambda : json.dump(["VALUE", commande, responselist], self.response.out))
+		# Le programme original ne retournait que la valeur de Value
+		# WritePhoneOrWeb(self, lambda : json.dump(["VALUE", tag, value], self.response.out))
 
-  # ---------------------------------------------------------------
-  # Appelé lorsque l'on clique sur le bouton 'Get value'
-  # ---------------------------------------------------------------
-  def post(self):
-    tag = self.request.get('tag')
-    self.get_value(tag)
+	# ---------------------------------------------------------------
+	# Appelé lorsque l'on clique sur le bouton 'Get value'
+	# ---------------------------------------------------------------
+	def post(self):
+		tag = self.request.get('tag')
+		self.get_value(tag)
 
-  # ---------------------------------------------------------------
-  # Appelé lorsque l'on accède à la page
-  # ---------------------------------------------------------------
-  def get(self):
-    self.response.out.write('''
-    <html><body>
-    <form action="/getvalue" method="post" enctype=application/x-www-form-urlencoded>
-       <p>Tag<input type="text" name="tag" /></p>
-       <input type="hidden" name="fmt" value="html">
-       <input type="submit" value="Get value">
-    </form></body></html>\n''')
+	# ---------------------------------------------------------------
+	# Appelé lorsque l'on accède à la page
+	# ---------------------------------------------------------------
+	def get(self):
+		self.response.out.write('''
+		<html><body>
+		<form action="/getvalue" method="post" enctype=application/x-www-form-urlencoded>
+			 <p>Tag<input type="text" name="tag" /></p>
+			 <input type="hidden" name="fmt" value="html">
+			 <input type="submit" value="Get value">
+		</form></body></html>\n''')
 
 
 ### =============================================================================
 ### The DeleteEntry is called from the Web only, by pressing one of the
-### buttons on the main page.  So there's no get method, only a post.
+### buttons on the main page.	So there's no get method, only a post.
 ### =============================================================================
 
 class DeleteEntry(webapp.RequestHandler):
 
-  # ---------------------------------------------------------------
-  # Appelé lorsque l'on clique sur le bouton
-  # ---------------------------------------------------------------
-  def post(self):
-    logging.debug('/deleteentry?%s\n|%s|' %(self.request.query_string, self.request.body))
-    entry_key_string = self.request.get('entry_key_string')
-    key = db.Key(entry_key_string)
-    tag = self.request.get('tag')
-    db.run_in_transaction(dbSafeDelete,key)
-    self.redirect('/')
+	# ---------------------------------------------------------------
+	# Appelé lorsque l'on clique sur le bouton
+	# ---------------------------------------------------------------
+	def post(self):
+		logging.debug('/deleteentry?%s\n|%s|' %(self.request.query_string, self.request.body))
+		entry_key_string = self.request.get('entry_key_string')
+		key = db.Key(entry_key_string)
+		tag = self.request.get('tag')
+		db.run_in_transaction(dbSafeDelete,key)
+		self.redirect('/')
 
 
 ### =============================================================================
@@ -296,81 +296,80 @@ class DeleteEntry(webapp.RequestHandler):
 # Show the API
 # ------------------------------------------------------------------------------
 def write_available_operations(self):
-  self.response.out.write('''
-    <p>Available calls:\n
-    <ul>
-    <li><a href="/storeavalue">/storeavalue</a>: Stores a data, given a tag (isbn) and a value (owner).</li>
-    <li><a href="/getvalue">/getvalue</a>: Retrieves the value (list)stored under a given tag (isbn).  Returns the empty string if no value is stored.</br>
-    The list contains: [title, author, publisher, publishedDate, small thumbnail url]</br>
-    The list does not contain: image url, description.</li>
-    <li>tag "isbn:*": returns the list of all tags (isbn) in database.</li>
-    <li>tag "isbn:123456789": returns information list about this book (isbn).</li>
-    <li>tag "*user:*": returns the list of all known owners.</li>
-    <li>tag "*user:john": returns the list of all tags (isbn) which have "john" for owner.</li>
-    </ul>''')
+	self.response.out.write('''
+		<p>Available calls:\n
+		<ul>
+		<li><a href="/storeavalue">/storeavalue</a>: Stores a data, given a tag (isbn) and a value (owner).</li>
+		<li><a href="/getvalue">/getvalue</a>: Retrieves the value (list)stored under a given tag (isbn).	Returns the empty string if no value is stored.</br>
+		The list contains: [title, author, publisher, publishedDate, small thumbnail url]</br>
+		The list does not contain: image url, description.</li>
+		<li>tag "isbn:*": returns the list of all tags (isbn) in database.</li>
+		<li>tag "isbn:123456789": returns information list about this book (isbn).</li>
+		<li>tag "*user:*": returns the list of all known owners.</li>
+		<li>tag "*user:john": returns the list of all tags (isbn) which have "john" for owner.</li>
+		</ul>''')
 
 # ------------------------------------------------------------------------------
 # Generate the page header
 # ------------------------------------------------------------------------------
 def write_page_header(self):
-  self.response.headers['Content-Type'] = 'text/html'
-  self.response.out.write('''
-     <html>
-     <head>
-     <style type="text/css">
-        body {margin-left: 5% ; margin-right: 5%; margin-top: 0.5in;
-             font-family: verdana, arial,"trebuchet ms", helvetica, sans-serif;}
-        ul {list-style: disc;}
-     </style>
-     <title>Tiny Book Catalog</title>
-     </head>
-     <body>''')
-  self.response.out.write('<h2>Tiny-Book-Catalog (App Inventor for Android - using TinyWebDB component)</h2>')
+	self.response.headers['Content-Type'] = 'text/html'
+	self.response.out.write('''
+		 <html>
+		 <head>
+		 <style type="text/css">
+				body {margin-left: 5% ; margin-right: 5%; margin-top: 0.5in; font-family: verdana, arial,"trebuchet ms", helvetica, sans-serif;}
+				ul {list-style: disc;}
+		 </style>
+		 <title>Tiny Book Catalog</title>
+		 </head>
+		 <body>''')
+	self.response.out.write('<h2>Tiny-Book-Catalog (App Inventor for Android - using TinyWebDB component)</h2>')
 
 # ------------------------------------------------------------------------------
 # Show the tags and values as a table.
 # ------------------------------------------------------------------------------
 def show_stored_data(self):
-  self.response.out.write('''
-    <p><table border=1>
-      <tr>
-         <th>Tag</th>
-         <th>Owner</th>
-         <th>Title</th>
-         <th>Author</th>
-         <th>publishedDate</th>
-         <th>description</th>
-         <th>image</th>
-         <th>Created (GMT)</th>
-      </tr>''')
-  # This next line is replaced by the one under it, in order to help
-  # protect against SQL injection attacks.  Does it help enough?
-  #entries = db.GqlQuery("SELECT * FROM StoredData ORDER BY tag")
-  entries = StoredData.all().order("-tag")
-  for e in entries:
-    entry_key_string = str(e.key())
-    self.response.out.write('<tr>')
-    self.response.out.write('<td>%s</td>' % escape(e.tag))
-    self.response.out.write('<td>%s</td>' % escape(e.value))      
-    if e.title: self.response.out.write('<td>%s</td>' % escape(e.title))
-    else:   self.response.out.write('<td></td>')
-    if e.author: self.response.out.write('<td>%s</td>' % escape(e.author))
-    else:   self.response.out.write('<td></td>')
-    if e.publishedDate: self.response.out.write('<td>%s</td>' % escape(e.publishedDate))
-    else:   self.response.out.write('<td></td>')
-    if e.description: self.response.out.write('<td>%s</td>' % escape(e.description))
-    else:   self.response.out.write('<td></td>')
-    if e.smallThumbnail: self.response.out.write('<td><a href="%s">link</a></td>' % escape(e.smallThumbnail))
-    else:   self.response.out.write('<td></td>')
-    self.response.out.write('<td><font size="-1">%s</font></td>\n' % e.date.ctime())
-    self.response.out.write('''
-      <td><form action="/deleteentry" method="post" enctype=application/x-www-form-urlencoded>
-        <input type="hidden" name="entry_key_string" value="%s">
-        <input type="hidden" name="tag" value="%s">
-        <input type="hidden" name="fmt" value="html">
-        <input type="submit" style="background-color: red" value="Delete"></form></td>\n''' %(entry_key_string, escape(e.tag)))
-    self.response.out.write('</tr>')
-  self.response.out.write('</table>')
+	self.response.out.write('''
+		<p><table border=1>
+			<tr>
+				 <th>Tag</th>
+				 <th>Owner</th>
+				 <th>Title</th>
+				 <th>Author</th>
+				 <th>publishedDate</th>
+				 <th>description</th>
+				 <th>image</th>
+				 <th>Created (GMT)</th>
+			</tr>''')
+	# This next line is replaced by the one under it, in order to help
+	# protect against SQL injection attacks. Does it help enough?
+	#entries = db.GqlQuery("SELECT * FROM StoredData ORDER BY tag")
+	entries = StoredData.all().order("-tag")
+	for e in entries:
+		entry_key_string = str(e.key())
+		self.response.out.write('<tr>')
+		self.response.out.write('<td>%s</td>' % escape(e.tag))
+		self.response.out.write('<td>%s</td>' % escape(e.value))			
+		if e.title: self.response.out.write('<td>%s</td>' % escape(e.title))
+		else:       self.response.out.write('<td></td>')
+		if e.author: self.response.out.write('<td>%s</td>' % escape(e.author))
+		else:        self.response.out.write('<td></td>')
+		if e.publishedDate: self.response.out.write('<td>%s</td>' % escape(e.publishedDate))
+		else:               self.response.out.write('<td></td>')
+		if e.description: self.response.out.write('<td>%s</td>' % escape(e.description))
+		else:             self.response.out.write('<td></td>')
+		if e.smallThumbnail: self.response.out.write('<td><a href="%s">link</a></td>' % escape(e.smallThumbnail))
+		else:                self.response.out.write('<td></td>')
+		self.response.out.write('<td><font size="-1">%s</font></td>\n' % e.date.ctime())
+		self.response.out.write('''
+			<td><form action="/deleteentry" method="post" enctype=application/x-www-form-urlencoded>
+				<input type="hidden" name="entry_key_string" value="%s">
+				<input type="hidden" name="tag" value="%s">
+				<input type="hidden" name="fmt" value="html">
+				<input type="submit" style="background-color: red" value="Delete"></form></td>\n''' %(entry_key_string, escape(e.tag)))
+		self.response.out.write('</tr>')
+	self.response.out.write('</table>')
 
 
 
@@ -380,66 +379,63 @@ def show_stored_data(self):
 
 # ------------------------------------------------------------------------------
 # Write response to the smartphone or to the Web depending on fmt.
-#   Handler is an appengine request handler.  
-#   Writer is a thunk (i.e. a procedure of no arguments) that does the write when invoked.
+#	 Handler is an appengine request handler.	
+#	 Writer is a thunk (i.e. a procedure of no arguments) that does the write when invoked.
 # ------------------------------------------------------------------------------
 def WritePhoneOrWeb(handler, writer):
-  if handler.request.get('fmt') == "html":
-    WritePhoneOrWebToWeb(handler, writer)
-  else:
-    handler.response.headers['Content-Type'] = 'application/jsonrequest'
-    writer()
+	if handler.request.get('fmt') == "html":
+		WritePhoneOrWebToWeb(handler, writer)
+	else:
+		handler.response.headers['Content-Type'] = 'application/jsonrequest'
+		writer()
 
 # ------------------------------------------------------------------------------
 # Result when writing to the Web
 # ------------------------------------------------------------------------------
 def WritePhoneOrWebToWeb(handler, writer):
-  handler.response.headers['Content-Type'] = 'text/html'
-  handler.response.out.write('<html><body>')
-  handler.response.out.write('''<em>The server will send this to the component:</em><p/>''')
-  writer()
-  WriteWebFooter(handler, writer)
-
+	handler.response.headers['Content-Type'] = 'text/html'
+	handler.response.out.write('<html><body>')
+	handler.response.out.write('''<em>The server will send this to the component:</em><p/>''')
+	writer()
+	WriteWebFooter(handler, writer)
 
 # ------------------------------------------------------------------------------
 # Write to the Web (without checking fmt)
 # ------------------------------------------------------------------------------
 def WriteToWeb(handler, writer):
-  handler.response.headers['Content-Type'] = 'text/html'
-  handler.response.out.write('<html><body>')
-  writer()
-  WriteWebFooter(handler, writer)
+	handler.response.headers['Content-Type'] = 'text/html'
+	handler.response.out.write('<html><body>')
+	writer()
+	WriteWebFooter(handler, writer)
 
 def WriteWebFooter(handler, writer):
-  handler.response.out.write('''<p><a href="/"><i>Return to Main Page</i></a>''')
-  handler.response.out.write('</body></html>')
+	handler.response.out.write('''<p><a href="/"><i>Return to Main Page</i></a>''')
+	handler.response.out.write('</body></html>')
 
 # ------------------------------------------------------------------------------
 # Delete an item from database (if exists)
 # ------------------------------------------------------------------------------
 def dbSafeDelete(key):
-  if db.get(key):  db.delete(key)
-
+	if db.get(key):	db.delete(key)
 
 # ------------------------------------------------------------------------------
 # Assign a class to each URL
 # ------------------------------------------------------------------------------
-application =     \
-   webapp.WSGIApplication([('/', MainPage),
-                           ('/storeavalue', StoreAValue),
-                           ('/deleteentry', DeleteEntry),
-                           ('/getvalue', GetValue)
-                           ],
-                          debug=True)
+application =		 \
+	 webapp.WSGIApplication([('/', MainPage),
+							 ('/storeavalue', StoreAValue),
+							 ('/deleteentry', DeleteEntry),
+							 ('/getvalue', GetValue)],
+							debug=True)
 
 # ------------------------------------------------------------------------------
 # Main program
 # ------------------------------------------------------------------------------
 def main():
-  run_wsgi_app(application)
+	run_wsgi_app(application)
 
 # ------------------------------------------------------------------------------
 # Execution
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
-  main()
+	main()
