@@ -238,8 +238,8 @@ class GetValue(webapp.RequestHandler):
         if (smallThumbnail): smallThumbnail = escape(smallThumbnail)
       # On remplit la liste des valeurs à retourner à l'application
       responselist = [title,author,publisher,publishedDate,smallThumbnail]
-	else:
-	  responselist = ["unknown book","??","??","??",""]
+    else:
+      responselist = ["unknown book","??","??","??",""]
     # -------------------------------------------------------------
     # Envoi de la reponse
     # -------------------------------------------------------------
