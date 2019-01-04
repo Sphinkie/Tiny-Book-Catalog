@@ -208,7 +208,7 @@ class GetValue(webapp.RequestHandler):
     # -------------------------------------------------------------
     # "user:toto"	Liste des ISBN du user TOTO
     # -------------------------------------------------------------
-    elif commande[0:4] == "user:":
+    elif commande[0:5] == "user:":
       query = db.GqlQuery("SELECT * FROM StoredData WHERE value = :1", commande[5:])
       results = query.fetch(limit=100)
       for item in results: responselist.append(item.tag)
