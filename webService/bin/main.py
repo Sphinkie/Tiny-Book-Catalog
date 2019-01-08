@@ -143,7 +143,7 @@ class StoreAValue(webapp.RequestHandler):
           entry.thumbnail      = dico["items"][0]["volumeInfo"]["imageLinks"].get("thumbnail","")
         if "searchInfo" in dico["items"][0].keys():
           abstract = dico["items"][0]["searchInfo"].get("textSnippet","")
-          # abstract.encode("UTF-16LE")			# Ca ne change rien
+          # abstract.encode("UTF-16LE")				# Ca ne change rien
           abstract.replace("&#39;","'") 			# ne marche pas (on a &#39; à la place des ')
           entry.textSnippet = abstract
       entry.put()
@@ -241,6 +241,20 @@ class GetValue(webapp.RequestHandler):
         if (smallThumbnail): smallThumbnail = escape(smallThumbnail)
       # On remplit la liste des valeurs à retourner à l'application
       responselist = [title,author,publisher,publishedDate,smallThumbnail]
+    # -------------------------------------------------------------
+    # "desc:9700000000"	Renvoie le résumé du livre 
+    # -------------------------------------------------------------
+    elif commande[0:5] == "desc:":
+      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command[1]).get() 
+      if entry:
+        description = entry.description
+        snippet = entry.textSnippet
+      else:
+        description = ""
+        snippet = ""
+      # On remplit la liste des valeurs à retourner à l'application
+      if description=="": responselist = snippet
+      else: responselist = description
     # -------------------------------------------------------------
     # Autres cas
     # -------------------------------------------------------------
