@@ -190,6 +190,7 @@ class GetValue(webapp.RequestHandler):
   # Traitement du bouton 'Get value'
   # ---------------------------------------------------------------
   def get_value(self, commande):
+    command = commande.split(":")
     responselist = []
     # -------------------------------------------------------------
     # "isbn:*"	Liste complete des ISBN
@@ -215,10 +216,10 @@ class GetValue(webapp.RequestHandler):
       results = query.run(limit=100)
       for item in results: responselist.append(item.tag)
     # -------------------------------------------------------------
-    # Autres cas (commande est du type "isbn:9700000000")
+    # "isbn:9700000000:request_id"	Renvoie les infos sur le livre 
     # -------------------------------------------------------------
-    elif commande[0]=='9':
-      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", commande).get() 
+    elif commande[0:5] == "isbn:":
+      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command[1]).get() 
       if entry:
         title = entry.title
         author = entry.author
@@ -240,8 +241,11 @@ class GetValue(webapp.RequestHandler):
         if (smallThumbnail): smallThumbnail = escape(smallThumbnail)
       # On remplit la liste des valeurs à retourner à l'application
       responselist = [title,author,publisher,publishedDate,smallThumbnail]
+    # -------------------------------------------------------------
+    # Autres cas
+    # -------------------------------------------------------------
     else:
-      responselist = ["unknown book","??","??","??",""]
+      responselist = ["unknown command","","","",""]
     # -------------------------------------------------------------
     # Envoi de la reponse
     # -------------------------------------------------------------
@@ -306,7 +310,7 @@ def write_available_operations(self):
     The list contains: [title, author, publisher, publishedDate, small thumbnail url]</br>
     The list does not contain: image url, description.</li>
     <li>tag "isbn:*": returns the list of all tags (isbn) in database.</li>
-    <li>tag "isbn:123456789": returns information list about this book (isbn).</li>
+    <li>tag "isbn:123456789[:requestid]": returns information list about this book (isbn). <i>requestid</i> is optionnal.</li>
     <li>tag "*user:*": returns the list of all known owners.</li>
     <li>tag "*user:john": returns the list of all tags (isbn) which have "john" for owner.</li>
     </ul>''')
