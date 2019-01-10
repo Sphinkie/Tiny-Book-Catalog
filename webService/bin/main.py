@@ -96,19 +96,16 @@ class StoreAValue(webapp.RequestHandler):
     if command[0:6]=="owner:":
       if entry:
         # S'il y a deja une Entry dans la base avec ce tag ISBN: on met à jour le owner
-        entry.value = command[6:]
+        # (en enlevant les quillemets autour du nom
+        entry.value = command[7:-1]
     # ----------------------------------------------------------------------------
     # Ajout d'un nouveau livre
     # ----------------------------------------------------------------------------
     else:
       # Note: There's a potential readers/writers error here...
       entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
-      if entry:
-        # S'il y a deja une Entry dans la base avec ce tag ISBN: on met à jour le owner
-        entry.value = command
-      else: 
-        # sinon, on crée une nouvelle Entry
-        entry = StoredData(tag = tag, value = command)
+      # Si cette entry n'existe pas, on crée une nouvelle Entry
+      if not entry:  entry = StoredData(tag = tag)
       entry.put()
       
       # appel API externe
@@ -258,6 +255,17 @@ class GetValue(webapp.RequestHandler):
       # On remplit la liste des valeurs à retourner à l'application
       if description=="": responselist = [snippet]
       else: responselist = [description]
+    # -------------------------------------------------------------
+    # "pict:9700000000"	Renvoie l'url de la couverture du livre 
+    # -------------------------------------------------------------
+    elif commande[0:5] == "pict:":
+      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command[1]).get() 
+      if entry:
+        picture = entry.smallThumbnail
+      else:
+        picture = ""
+      # On remplit la liste des valeurs à retourner à l'application
+      responselist = [picture]
     # -------------------------------------------------------------
     # Autres cas
     # -------------------------------------------------------------
