@@ -91,7 +91,7 @@ class StoreAValue(webapp.RequestHandler):
   # ------------------------------------------------------------------------------
   def store_a_value(self, tag, command):
     # ----------------------------------------------------------------------------
-    # Affectation d'un owner au livre: ""owner:toto""
+    # Affectation d'un propriétaire au livre: ""owner:toto""
     # ----------------------------------------------------------------------------
     if command[0:6]=="owner:":
       if entry:
@@ -154,7 +154,7 @@ class StoreAValue(webapp.RequestHandler):
       # Send back a confirmation message. 
       # The TinyWebDB component ignores the message (it just notes that it was received), 
       # but other components might use this.
-      result = ["STORED", tag, owner]
+      result = ["STORED", tag, command]
       WritePhoneOrWeb(self, lambda : json.dump(result, self.response.out))
   
   # ---------------------------------------------------------------
