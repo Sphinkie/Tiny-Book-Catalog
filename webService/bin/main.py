@@ -89,70 +89,73 @@ class StoreAValue(webapp.RequestHandler):
   # ------------------------------------------------------------------------------
   # Traitement du bouton "Store a value"
   # ------------------------------------------------------------------------------
-  def store_a_value(self, tag, owner):
-    # Note: There's a potential readers/writers error here...
-    entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
-    if entry:
-      # S'il y a deja une Entry dans la base avec ce tag ISBN: on met à jour le owner
-      entry.value = owner
-    else: 
-      # sinon, on crée une nouvelle Entry
-      entry = StoredData(tag = tag, value = owner)
-    entry.put()
-    
-    # appel API externe
-    url = "https://www.googleapis.com/books/v1/volumes?q=isbn:"+str(tag)+"&country=US"
-    ## ----------------
-    result = urlfetch.fetch(url)
-    '''try:
-      if result.status_code == 200:
-        self.response.out.write(result.content)
-      else:
-        self.response.out.write("Error: " + str(result.status_code))
-    except urlfetch.InvalidURLError:
-        self.response.out.write("URL is an empty string or obviously invalid")
-    except urlfetch.DownloadError:
-        self.response.out.write("Server cannot be contacted")
-    '''
-    contents = result.content
-    logging.debug('%s '%(contents))
-    
-    # -----------------------------------------------------------
-    # Erreur 403 Forbidden
-    # voir les causes ici: https://cloud.google.com/appengine/docs/standard/python/googlecloudstorageclient/errors
-    ## ----------------------------------------------------------
-    ## Note: en python 3, la syntaxe est la suivante:
-    ##   import urllib.request
-    ##   contents = urllib.request.urlopen("http://example.com/foo/bar").read()
-    ## ----------------------------------------------------------
-    # contents : flux json contenant les infos du livre.
-    # -----------------------------------------------------------
-    dico = json.loads(contents)
-    logging.debug('dico %s '%(dico))
-    # "description"
-    if dico.get("totalItems",0)>0:
-      if "volumeInfo" in dico["items"][0].keys():
-        entry.title         = dico["items"][0]["volumeInfo"].get("title","")
-        entry.author        = dico["items"][0]["volumeInfo"].get("authors",["Unknown"])[0]	# on prend le premier de la liste d'auteurs
-        entry.publisher     = dico["items"][0]["volumeInfo"].get("publisher","")
-        entry.publishedDate = dico["items"][0]["volumeInfo"].get("publishedDate","")
-        entry.language      = dico["items"][0]["volumeInfo"].get("language","FR")
-        entry.description   = dico["items"][0]["volumeInfo"].get("description","")
-        if "imageLinks" in dico["items"][0]["volumeInfo"].keys():
-          entry.smallThumbnail = dico["items"][0]["volumeInfo"]["imageLinks"].get("smallThumbnail","")
-          entry.thumbnail      = dico["items"][0]["volumeInfo"]["imageLinks"].get("thumbnail","")
-        if "searchInfo" in dico["items"][0].keys():
-          abstract = dico["items"][0]["searchInfo"].get("textSnippet","")
-          # abstract.encode("UTF-16LE")				# Ca ne change rien
-          abstract.replace("&#39;","'") 			# ne marche pas (on a &#39; à la place des ')
-          entry.textSnippet = abstract
+  def store_a_value(self, tag, command):
+    # ----------------------------------------------------------------------------
+    # Affectation d'un owner au livre: ""owner:toto""
+    # ----------------------------------------------------------------------------
+    if command[0:6]=="owner:":
+      if entry:
+        # S'il y a deja une Entry dans la base avec ce tag ISBN: on met à jour le owner
+        entry.value = command[6:]
+    # ----------------------------------------------------------------------------
+    # Ajout d'un nouveau livre
+    # ----------------------------------------------------------------------------
+    else:
+      # Note: There's a potential readers/writers error here...
+      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
+      if entry:
+        # S'il y a deja une Entry dans la base avec ce tag ISBN: on met à jour le owner
+        entry.value = command
+      else: 
+        # sinon, on crée une nouvelle Entry
+        entry = StoredData(tag = tag, value = command)
       entry.put()
-    # print ("</br>")
-    # Send back a confirmation message. 
-    # The TinyWebDB component ignores the message (it just notes that it was received), 
-    # but other components might use this.
-    result = ["STORED", tag, owner]
-    WritePhoneOrWeb(self, lambda : json.dump(result, self.response.out))
+      
+      # appel API externe
+      url = "https://www.googleapis.com/books/v1/volumes?q=isbn:"+str(tag)+"&country=US"
+      ## ----------------
+      result = urlfetch.fetch(url)
+      '''try:
+        if result.status_code == 200:
+          self.response.out.write(result.content)
+        else:
+          self.response.out.write("Error: " + str(result.status_code))
+      except urlfetch.InvalidURLError:
+          self.response.out.write("URL is an empty string or obviously invalid")
+      except urlfetch.DownloadError:
+          self.response.out.write("Server cannot be contacted")
+      '''
+      contents = result.content
+      logging.debug('%s '%(contents))
+      # -----------------------------------------------------------
+      # contents : flux json contenant les infos du livre.
+      # -----------------------------------------------------------
+      dico = json.loads(contents)
+      logging.debug('dico %s '%(dico))
+      # "description"
+      if dico.get("totalItems",0)>0:
+        if "volumeInfo" in dico["items"][0].keys():
+          entry.title         = dico["items"][0]["volumeInfo"].get("title","")
+          entry.author        = dico["items"][0]["volumeInfo"].get("authors",["Unknown"])[0]	# on prend le premier de la liste d'auteurs
+          entry.publisher     = dico["items"][0]["volumeInfo"].get("publisher","")
+          entry.publishedDate = dico["items"][0]["volumeInfo"].get("publishedDate","")
+          entry.language      = dico["items"][0]["volumeInfo"].get("language","FR")
+          entry.description   = dico["items"][0]["volumeInfo"].get("description","")
+          if "imageLinks" in dico["items"][0]["volumeInfo"].keys():
+            entry.smallThumbnail = dico["items"][0]["volumeInfo"]["imageLinks"].get("smallThumbnail","")
+            entry.thumbnail      = dico["items"][0]["volumeInfo"]["imageLinks"].get("thumbnail","")
+          if "searchInfo" in dico["items"][0].keys():
+            abstract = dico["items"][0]["searchInfo"].get("textSnippet","")
+            # abstract.encode("UTF-16LE")				# Ca ne change rien
+            abstract.replace("&#39;","'") 			# ne marche pas (on a &#39; à la place des ')
+            entry.textSnippet = abstract
+        entry.put()
+      # print ("</br>")
+      # Send back a confirmation message. 
+      # The TinyWebDB component ignores the message (it just notes that it was received), 
+      # but other components might use this.
+      result = ["STORED", tag, owner]
+      WritePhoneOrWeb(self, lambda : json.dump(result, self.response.out))
   
   # ---------------------------------------------------------------
   # Appelé lorsque l'on clique sur le bouton "Store a value", ou par le smartphone
@@ -253,8 +256,8 @@ class GetValue(webapp.RequestHandler):
         description = ""
         snippet = ""
       # On remplit la liste des valeurs à retourner à l'application
-      if description=="": responselist = snippet
-      else: responselist = description
+      if description=="": responselist = [snippet]
+      else: responselist = [description]
     # -------------------------------------------------------------
     # Autres cas
     # -------------------------------------------------------------
