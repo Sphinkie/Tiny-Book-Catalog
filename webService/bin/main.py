@@ -97,8 +97,12 @@ class StoreAValue(webapp.RequestHandler):
       entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
       if entry:
         # S'il y a deja une Entry dans la base avec ce tag ISBN: on met à jour le owner
-        entry.value = command[6:]
+        entry.value = " owner + entry" #command[6:]
         entry.put()
+      else:
+        entry.value = " owner + no entry"
+        entry.put()
+               
     # ----------------------------------------------------------------------------
     # Ajout d'un nouveau livre
     # ----------------------------------------------------------------------------
@@ -108,6 +112,10 @@ class StoreAValue(webapp.RequestHandler):
       # Si cette entry n'existe pas, on crée une nouvelle Entry
       if not entry:  
         entry = StoredData(tag = tag)
+        entry.value = " create + no entry"
+        entry.put()
+      else:
+        entry.value = " create + existing entry"
         entry.put()
       
       # appel API externe
