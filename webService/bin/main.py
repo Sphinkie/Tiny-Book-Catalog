@@ -97,7 +97,7 @@ class StoreAValue(webapp.RequestHandler):
       entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
       if entry:
         # S'il y a deja une Entry dans la base avec ce tag ISBN: on met à jour le owner
-        entry.value = " owner + entry" #command[6:]
+        entry.value = " owner + entry + %s"%(command[6:])
         entry.put()
       else:
         entry.value = " owner + no entry"
@@ -115,7 +115,7 @@ class StoreAValue(webapp.RequestHandler):
         entry.value = " create + no entry"
         entry.put()
       else:
-        entry.value = " create + existing entry with tag %s" %(tag)
+        entry.value = " create + existing entry with command %s" %(command)
         entry.put()
       
       # appel API externe
