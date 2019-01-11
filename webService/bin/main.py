@@ -94,10 +94,10 @@ class StoreAValue(webapp.RequestHandler):
     # Affectation d'un propriétaire au livre: ""owner:toto""
     # ----------------------------------------------------------------------------
     if command[0:6]=="owner:":
+      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
       if entry:
         # S'il y a deja une Entry dans la base avec ce tag ISBN: on met à jour le owner
-        # (en enlevant les quillemets autour du nom
-        entry.value = command[7:-1]
+        entry.value = command[6:]
     # ----------------------------------------------------------------------------
     # Ajout d'un nouveau livre
     # ----------------------------------------------------------------------------
@@ -161,7 +161,6 @@ class StoreAValue(webapp.RequestHandler):
     tag = self.request.get('tag')
     value = self.request.get('value')
     # on enleve les " autour du tag
-    if tag[0]=='"': tag = tag[1:-1]
     self.store_a_value(tag, value)
   
   # ---------------------------------------------------------------
@@ -190,7 +189,7 @@ class GetValue(webapp.RequestHandler):
   # Traitement du bouton 'Get value'
   # ---------------------------------------------------------------
   def get_value(self, commande):
-    command = commande.split(":")
+    command_list = commande.split(":")
     responselist = []
     # -------------------------------------------------------------
     # "isbn:*"	Liste complete des ISBN
@@ -211,15 +210,15 @@ class GetValue(webapp.RequestHandler):
     # -------------------------------------------------------------
     # "user:toto"	Liste des ISBN du user TOTO
     # -------------------------------------------------------------
-    elif commande[0:5] == "user:":
-      query = db.GqlQuery("SELECT * FROM StoredData WHERE value = :1", '"'+commande[5:]+'"')
+    elif command_list[0] == "user":
+      query = db.GqlQuery("SELECT * FROM StoredData WHERE value = :1", command_list[1])
       results = query.run(limit=100)
       for item in results: responselist.append(item.tag)
     # -------------------------------------------------------------
-    # "isbn:9700000000:request_id"	Renvoie les infos sur le livre 
+    # "isbn:9700000000:userdata"	Renvoie les infos sur le livre 
     # -------------------------------------------------------------
-    elif commande[0:5] == "isbn:":
-      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command[1]).get() 
+    elif command_list[0] == "isbn":
+      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command_list[1]).get() 
       if entry:
         title = entry.title
         author = entry.author
@@ -244,8 +243,8 @@ class GetValue(webapp.RequestHandler):
     # -------------------------------------------------------------
     # "desc:9700000000"	Renvoie le résumé du livre 
     # -------------------------------------------------------------
-    elif commande[0:5] == "desc:":
-      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command[1]).get() 
+    elif command_list[0] == "desc":
+      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command_list[1]).get() 
       if entry:
         description = entry.description
         snippet = entry.textSnippet
@@ -256,10 +255,10 @@ class GetValue(webapp.RequestHandler):
       if description=="": responselist = [snippet]
       else: responselist = [description]
     # -------------------------------------------------------------
-    # "pict:9700000000"	Renvoie l'url de la couverture du livre 
+    # "pict:9700000000:userdata"	Renvoie l'url de la couverture du livre 
     # -------------------------------------------------------------
-    elif commande[0:5] == "pict:":
-      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command[1]).get() 
+    elif command_list[0] == "pict":
+      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command_list[1]).get() 
       if entry:
         picture = entry.smallThumbnail
       else:
