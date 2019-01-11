@@ -69,6 +69,7 @@ class MainPage(webapp.RequestHandler):
     show_stored_data(self)					# affiche le contenu de la base
     self.response.out.write('</body></html>')
 
+	
 ### =============================================================================
 ### Implementing the operations
 ### =============================================================================
@@ -79,7 +80,6 @@ class MainPage(webapp.RequestHandler):
 ### The class includes the method that actually, manipulates the DB, 
 ### followed by the methods that respond to POST and to GET.
 ### =============================================================================
-
 
 ### =============================================================================
 ### Classe liée à la page /StoreAValue
@@ -100,21 +100,34 @@ class StoreAValue(webapp.RequestHandler):
         # S'il y a deja une Entry dans la base avec ce tag ISBN: on met à jour le owner
         entry.value = command_list[1]
         entry.put()
-               
+      result = ["UPDATED", tag, command]
     # ----------------------------------------------------------------------------
     # Ajout d'un nouveau livre
     # ----------------------------------------------------------------------------
-    else:
+    elif command_list[0] == "create":
       # Note: There's a potential readers/writers error here...
       entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
       # Si cette entry n'existe pas, on crée une nouvelle Entry
       if not entry:  
         entry = StoredData(tag = tag)
         entry.put()
-      
-      # appel API externe
-      url = "https://www.googleapis.com/books/v1/volumes?q=isbn:"+str(tag)+"&country=US"
-      ## ----------------
+        self.fillEntryWithGoogleBooksInfo(entry,tag)
+      result = ["STORED", tag, command]
+    # ----------------------------------------------------------------------------
+    # Autres cas
+    # ----------------------------------------------------------------------------
+    else:
+      result = ["UNDEFINED", tag, command]
+    # Send back a confirmation message. 
+    # The TinyWebDB component ignores the message (it just notes that it was received), 
+    # but other components might use this.
+    WritePhoneOrWeb(self, lambda : json.dump(result, self.response.out))
+
+  # ------------------------------------------------------------------------------
+  # Appel de Google Books
+  # ------------------------------------------------------------------------------
+  def fillEntryWithGoogleBooksInfo(self, entry, isbn):
+      url = "https://www.googleapis.com/books/v1/volumes?q=isbn:"+str(isbn)+"&country=US"
       result = urlfetch.fetch(url)
       '''try:
         if result.status_code == 200:
@@ -132,12 +145,10 @@ class StoreAValue(webapp.RequestHandler):
       # contents : flux json contenant les infos du livre.
       # -----------------------------------------------------------
       dico = json.loads(contents)
-      logging.debug('dico %s '%(dico))
-      # "description"
       if dico.get("totalItems",0)>0:
         if "volumeInfo" in dico["items"][0].keys():
           entry.title         = dico["items"][0]["volumeInfo"].get("title","")
-          entry.author        = dico["items"][0]["volumeInfo"].get("authors",["Unknown"])[0]	# on prend le premier de la liste d'auteurs
+          entry.author        = dico["items"][0]["volumeInfo"].get("authors",["null"])[0]	# on prend le premier de la liste d'auteurs
           entry.publisher     = dico["items"][0]["volumeInfo"].get("publisher","")
           entry.publishedDate = dico["items"][0]["volumeInfo"].get("publishedDate","")
           entry.language      = dico["items"][0]["volumeInfo"].get("language","FR")
@@ -146,17 +157,8 @@ class StoreAValue(webapp.RequestHandler):
             entry.smallThumbnail = dico["items"][0]["volumeInfo"]["imageLinks"].get("smallThumbnail","")
             entry.thumbnail      = dico["items"][0]["volumeInfo"]["imageLinks"].get("thumbnail","")
           if "searchInfo" in dico["items"][0].keys():
-            abstract = dico["items"][0]["searchInfo"].get("textSnippet","")
-            # abstract.encode("UTF-16LE")				# Ca ne change rien
-            abstract.replace("&#39;","'") 			# ne marche pas (on a &#39; à la place des ')
-            entry.textSnippet = abstract
-        entry.put()
-      # print ("</br>")
-      # Send back a confirmation message. 
-      # The TinyWebDB component ignores the message (it just notes that it was received), 
-      # but other components might use this.
-      result = ["STORED", tag, command]
-      WritePhoneOrWeb(self, lambda : json.dump(result, self.response.out))
+            entry.textSnippet = dico["items"][0]["searchInfo"].get("textSnippet","")
+          entry.put()
   
   # ---------------------------------------------------------------
   # Appelé lorsque l'on clique sur le bouton "Store a value", ou par le smartphone
@@ -285,7 +287,7 @@ class GetValue(webapp.RequestHandler):
     # WritePhoneOrWeb(self, lambda : json.dump(["VALUE", tag, value], self.response.out))
 
   # ---------------------------------------------------------------
-  # Appelé lorsque l'on clique sur le bouton 'Get value'
+  # Appelé lorsque l'on clique sur le bouton 'Get value', ou appel de TinyWebDB
   # ---------------------------------------------------------------
   def post(self):
     tag = self.request.get('tag')
@@ -308,7 +310,6 @@ class GetValue(webapp.RequestHandler):
 ### The DeleteEntry is called from the Web only, by pressing one of the
 ### buttons on the main page.  So there's no get method, only a post.
 ### =============================================================================
-
 class DeleteEntry(webapp.RequestHandler):
 
   # ---------------------------------------------------------------
@@ -381,7 +382,7 @@ def show_stored_data(self):
   # This next line is replaced by the one under it, in order to help
   # protect against SQL injection attacks.  Does it help enough?
   #entries = db.GqlQuery("SELECT * FROM StoredData ORDER BY tag")
-  entries = StoredData.all().order("-tag")
+  entries = StoredData.all().order("-date")
   for e in entries:
     entry_key_string = str(e.key())
     self.response.out.write('<tr>')
@@ -435,7 +436,6 @@ def WritePhoneOrWebToWeb(handler, writer):
   handler.response.out.write('''<em>The server will send this to the component:</em><p/>''')
   writer()
   WriteWebFooter(handler, writer)
-
 
 # ------------------------------------------------------------------------------
 # Write to the Web (without checking fmt)
