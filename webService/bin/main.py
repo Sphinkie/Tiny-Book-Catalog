@@ -93,7 +93,7 @@ class StoreAValue(webapp.RequestHandler):
     # ----------------------------------------------------------------------------
     # Affectation d'un propriétaire au livre: ""owner:toto""
     # ----------------------------------------------------------------------------
-    if command[0:6]=="owner:":
+    if "owner:" in command:
       entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
       if entry:
         # S'il y a deja une Entry dans la base avec ce tag ISBN: on met à jour le owner
@@ -115,7 +115,7 @@ class StoreAValue(webapp.RequestHandler):
         entry.value = " create + no entry"
         entry.put()
       else:
-        entry.value = " create + existing entry"
+        entry.value = " create + existing entry with tag %s" %(tag)
         entry.put()
       
       # appel API externe
