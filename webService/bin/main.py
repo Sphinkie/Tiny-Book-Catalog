@@ -88,6 +88,7 @@ class StoreAValue(webapp.RequestHandler):
 
   # ------------------------------------------------------------------------------
   # Traitement du bouton "Store a value"
+  # Note: get() retourne 1 element, fetch() retourne une liste, et run() retourne un objet itérable
   # ------------------------------------------------------------------------------
   def store_a_value(self, tag, command):
     command_list = command.split(':')
@@ -114,6 +115,16 @@ class StoreAValue(webapp.RequestHandler):
         self.fillEntryWithGoogleBooksInfo(entry,tag)
       result = ["STORED", tag, command]
     # ----------------------------------------------------------------------------
+    # Suppression d'un livre
+    # ----------------------------------------------------------------------------
+    elif command_list[0] == "deletedby":
+      # On recupère le owner du livre
+      entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
+      # Si c'est le même user qui demande la suppression: alors on peut la faire
+      # if entry.value == command_list[1]:
+      entry.key.delete()
+      result = ["DELETED", tag, command]
+    # ----------------------------------------------------------------------------
     # Autres cas
     # ----------------------------------------------------------------------------
     else:
@@ -125,6 +136,7 @@ class StoreAValue(webapp.RequestHandler):
 
   # ------------------------------------------------------------------------------
   # Appel de Google Books
+  # doc = https://cloud.google.com/appengine/docs/standard/python/issue-requests#Python_Fetching_URLs_in_Python
   # ------------------------------------------------------------------------------
   def fillEntryWithGoogleBooksInfo(self, entry, isbn):
       url = "https://www.googleapis.com/books/v1/volumes?q=isbn:"+str(isbn)+"&country=US"
@@ -188,12 +200,15 @@ class StoreAValue(webapp.RequestHandler):
 ### Classe liée à la page /GetValue
 ### Pour la synthaxe du query, voir:
 ### https://cloud.google.com/appengine/docs/standard/python/datastore/gqlqueryclass
-### get() return 1 element, fetch() returne une liste, et run() retourne un resultat itérable
 ### =============================================================================
 class GetValue(webapp.RequestHandler):
 
   # ---------------------------------------------------------------
   # Traitement du bouton 'Get value'
+  # Note sur GqlQuery: 
+  # .get() retourne le premier élement trouvé
+  # .run() retourne un objet itérable avec tous les élements trouvés (recommandé)
+  # .fetch() retourne la liste tous les élements trouvés (lenteur)
   # ---------------------------------------------------------------
   def get_value(self, commande):
     command_list = commande.split(":")
@@ -212,7 +227,7 @@ class GetValue(webapp.RequestHandler):
     # -------------------------------------------------------------
     elif commande == "user:*":
       query = db.GqlQuery("SELECT DISTINCT value FROM StoredData")
-      results = query.fetch(limit=100)
+      results = query.run(limit=100)
       for item in results: responselist.append(item.value)
     # -------------------------------------------------------------
     # "user:toto"	Liste des ISBN du user TOTO
