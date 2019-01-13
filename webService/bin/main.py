@@ -1,3 +1,4 @@
+# coding: UTF-8
 #!/usr/bin/env python
 ### =============================================================================
 ### This is a web service for use with App Inventor for Android.
@@ -120,9 +121,11 @@ class StoreAValue(webapp.RequestHandler):
     elif command_list[0] == "deletedby":
       # On recupère le owner du livre
       entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
+      entry.description = "Livre de ["+entry.value+"] supprime par ["+command_list[1]+"]"	# Ne pas mettre d'accents dans ce texte: plantage unicode/ascii
+      entry.put()
       # Si c'est le même user qui demande la suppression: alors on peut la faire
-      # if entry.value == command_list[1]:
-      entry.key.delete()
+      if entry.value == command_list[1]:
+        entry.delete()
       result = ["DELETED", tag, command]
     # ----------------------------------------------------------------------------
     # Autres cas
