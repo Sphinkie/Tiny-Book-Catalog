@@ -20,11 +20,12 @@ from google.appengine.api import urlfetch
 ### =============================================================================
 ### Creation des colonnes de la table StoredData
 ### Defining a column as a StringProperty limits individual values to 500 characters.
-### To remove this limit, use a TextProperty instead 
+### To remove this limit, use a TextProperty instead.
 ### =============================================================================
 class StoredData(db.Model):
 	tag				= db.StringProperty()		# on y stocke le code ISBN
 	owner			= db.StringProperty()		# on y stocke le OWNER envoyé par le smartphone
+	requirer		= db.StringProperty()		# on y stocke le DEMANDEUR envoyé le smartphone
 	title			= db.StringProperty()		# on y stocke le TITLE envoyé par l'API externe
 	author			= db.StringProperty()		# on y stocke le AUTHOR envoyé par l'API externe
 	publisher		= db.StringProperty()		# on y stocke le PUBLISHER envoyé par l'API externe
@@ -38,6 +39,8 @@ class StoredData(db.Model):
 
 
 
+### =============================================================================
+### =============================================================================
 IntroMessage = '''
 <table border=0>
 <tr valign="top">
@@ -116,12 +119,14 @@ class StoreAValue(webapp.RequestHandler):
 		# ----------------------------------------------------------------------------
 		# Appropriation de tous les livres (debug)
 		# ----------------------------------------------------------------------------
-		elif command_list[0] == "forceAllOwner":
+		elif command_list[0] == "MaintenanceSpecialOp":
+			'''
 			# On fait une mise à jour de tous les owner !
 			query = db.GqlQuery("SELECT * FROM StoredData")
 			for item in query: 				# run() est implicite
 				item.owner = command_list[1]
 				item.put()
+			'''
 			result = ["CHANGED", tag, command]
 		# ----------------------------------------------------------------------------
 		# Suppression d'un livre
@@ -135,6 +140,17 @@ class StoreAValue(webapp.RequestHandler):
 			if entry.owner == command_list[1]:
 				entry.delete()
 			result = ["DELETED", tag, command]
+		# ----------------------------------------------------------------------------
+		# Réception d'une demande de livre
+		# ----------------------------------------------------------------------------
+		elif command_list[0] == "requestedby":
+			# Ce livre est-t-il bien connu en base ?
+			entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
+			if entry:
+				# Si oui
+				entry.requirer = command_list[1]
+				entry.put()
+			result = ["UPDATED", tag, command]
 		# ----------------------------------------------------------------------------
 		# Autres cas
 		# ----------------------------------------------------------------------------
@@ -261,24 +277,27 @@ class GetValue(webapp.RequestHandler):
 			if entry:
 				title = entry.title
 				author = entry.author
+				requirer = entry.requirer
 				publisher = entry.publisher
 				publishedDate = entry.publishedDate
 				smallThumbnail = entry.smallThumbnail
 			else:
 				title = "titre non trouvé"
-				author = "-"
-				publisher = "-"
-				publishedDate = "-"
+				author = ""
+				requirer = ""
+				publisher = ""
+				publishedDate = ""
 				smallThumbnail = ""
 			# if it is a html request, clean the variables.
 			if self.request.get('fmt') == "html":
 				if (title): title = escape(title)
 				if (author): owner = escape(author)
+				if (requirer): requirer = escape(requirer)
 				if (publisher): publisher = escape(publisher)
 				if (publishedDate): publishedDate = escape(publishedDate)
 				if (smallThumbnail): smallThumbnail = escape(smallThumbnail)
 			# On remplit la liste des valeurs à retourner à l'application
-			responselist = [title,author,publisher,publishedDate,smallThumbnail]
+			responselist = [title,author,publisher,publishedDate,smallThumbnail,requirer]
 		# -------------------------------------------------------------
 		# "desc:9700000000"	Renvoie le résumé du livre 
 		# -------------------------------------------------------------
@@ -304,6 +323,17 @@ class GetValue(webapp.RequestHandler):
 				picture = ""
 			# On remplit la liste des valeurs à retourner à l'application
 			responselist = [picture]
+		# -------------------------------------------------------------
+		# "req:9700000000"	Renvoie le demandeur du livre
+		# -------------------------------------------------------------
+		elif command_list[0] == "req":
+			entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command_list[1]).get() 
+			if entry:
+				requirer = entry.requirer
+			else:
+				requirer = ""
+			# On remplit la liste des valeurs à retourner à l'application
+			responselist = [requirer]
 		# -------------------------------------------------------------
 		# Autres cas
 		# -------------------------------------------------------------
