@@ -1,12 +1,12 @@
-# coding: UTF-8
 #!/usr/bin/env python
-### =============================================================================
+# -*- coding: utf-8 -*-
+### ===========================================================================================
 ### This is a web service for use with App Inventor for Android.
 ### This particular service stores and retrieves tag-value pairs 
 ### using the protocol necessary to communicate with the TinyWebDBcomponent of AppInventor.
-### =============================================================================
+### ===========================================================================================
 ### Author: DDL
-### =============================================================================
+### ===========================================================================================
 
 import logging
 from cgi import escape	# Cette library remplace < par &lt;	> par &gt; et & par &amp;
@@ -17,11 +17,11 @@ from google.appengine.ext.db import Key
 from django.utils import simplejson as json
 from google.appengine.api import urlfetch
 
-### =============================================================================
+### ===========================================================================================
 ### Creation des colonnes de la table StoredData
 ### Defining a column as a StringProperty limits individual values to 500 characters.
 ### To remove this limit, use a TextProperty instead.
-### =============================================================================
+### ===========================================================================================
 class StoredData(db.Model):
 	tag				= db.StringProperty()		# on y stocke le code ISBN
 	owner			= db.StringProperty()		# on y stocke le OWNER envoyé par le smartphone
@@ -39,8 +39,8 @@ class StoredData(db.Model):
 
 
 
-### =============================================================================
-### =============================================================================
+### ===========================================================================================
+### ===========================================================================================
 IntroMessage = '''
 <table border=0>
 <tr valign="top">
@@ -65,13 +65,13 @@ class MainPage(webapp.RequestHandler):
 	# Appelé lorsque l'on accède à la page principale
 	# ---------------------------------------------------------------
 	def get(self):
-		write_page_header(self);
+		write_page_header(self)
 		self.response.out.write(IntroMessage) 	# affiche le message d'intro
-		write_available_operations(self)		# affiche la liste des operations possibles
+		# write_available_operations(self)		# affiche la liste des operations possibles
 		show_stored_data(self)					# affiche le contenu de la base
 		self.response.out.write('</body></html>')
 
-	
+
 ### =============================================================================
 ### Implementing the operations
 ### =============================================================================
@@ -114,6 +114,7 @@ class StoreAValue(webapp.RequestHandler):
 			if not entry:
 				entry = StoredData(tag = tag)
 				entry.put()
+				self.fillEntryWithDefaultInfo(entry, tag)
 				self.fillEntryWithGoogleBooksInfo(entry,tag)
 			result = ["STORED", tag, command]
 		# ----------------------------------------------------------------------------
@@ -131,7 +132,7 @@ class StoreAValue(webapp.RequestHandler):
 		# ----------------------------------------------------------------------------
 		# Suppression d'un livre
 		# ----------------------------------------------------------------------------
-		elif command_list[0] == "deletedby":
+		elif command_list[0] == "delete":
 			# On recupère le owner du livre
 			entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
 			entry.description = "Livre de ["+entry.owner+"] supprime par ["+command_list[1]+"]"	# Ne pas mettre d'accents dans ce texte: plantage unicode/ascii
@@ -143,7 +144,7 @@ class StoreAValue(webapp.RequestHandler):
 		# ----------------------------------------------------------------------------
 		# Réception d'une demande de livre
 		# ----------------------------------------------------------------------------
-		elif command_list[0] == "requestedby":
+		elif command_list[0] == "request":
 			# Ce livre est-t-il bien connu en base ?
 			entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
 			if entry:
@@ -162,9 +163,21 @@ class StoreAValue(webapp.RequestHandler):
 		WritePhoneOrWeb(self, lambda : json.dump(result, self.response.out))
 
 	# ------------------------------------------------------------------------------
+	# On renseigne les valeurs par défaut
+	# ------------------------------------------------------------------------------
+	def fillEntryWithDefaultInfo(self, entry, isbn):
+		entry.title			 = "Code ISBN: %s"%(isbn)
+		entry.author		 = "Livre non reconnu"
+		entry.requirer		 = "null"
+		entry.description	 = "Pas de resume."
+		entry.smallThumbnail = "book-pages.jpg"
+		entry.thumbnail		 = "book-pages.jpg"
+		entry.put()
+
+	# -----------------------------------------------------------------------------------------------------------
 	# Appel de Google Books
 	# doc = https://cloud.google.com/appengine/docs/standard/python/issue-requests#Python_Fetching_URLs_in_Python
-	# ------------------------------------------------------------------------------
+	# -----------------------------------------------------------------------------------------------------------
 	def fillEntryWithGoogleBooksInfo(self, entry, isbn):
 			url = "https://www.googleapis.com/books/v1/volumes?q=isbn:"+str(isbn)+"&country=US"
 			result = urlfetch.fetch(url)
@@ -184,14 +197,17 @@ class StoreAValue(webapp.RequestHandler):
 			# contents : flux json contenant les infos du livre.
 			# -----------------------------------------------------------
 			dico = json.loads(contents)
-			if dico.get("totalItems",0)>0:
+			if dico.get("totalItems",0) >0:
 				if "volumeInfo" in dico["items"][0].keys():
-					entry.title			= dico["items"][0]["volumeInfo"].get("title","")
-					entry.author		= dico["items"][0]["volumeInfo"].get("authors",["null"])[0]	# on prend le premier de la liste d'auteurs
-					entry.publisher		= dico["items"][0]["volumeInfo"].get("publisher","")
-					entry.publishedDate = dico["items"][0]["volumeInfo"].get("publishedDate","")
-					entry.language		= dico["items"][0]["volumeInfo"].get("language","FR")
-					entry.description	= dico["items"][0]["volumeInfo"].get("description","")
+					entry.title			 = dico["items"][0]["volumeInfo"].get("title","")
+					entry.author		 = dico["items"][0]["volumeInfo"].get("authors",["null"])[0]	# on prend le premier de la liste d'auteurs
+					entry.publisher		 = dico["items"][0]["volumeInfo"].get("publisher","")
+					publishedDate  		 = dico["items"][0]["volumeInfo"].get("publishedDate","")
+					entry.publishedDate  = publishedDate.split('-')[0]
+					entry.language		 = dico["items"][0]["volumeInfo"].get("language","")
+					entry.description	 = dico["items"][0]["volumeInfo"].get("description","Pas de resume.")
+					picture_number       = len(entry.title)%3		# valeurs possibles: 0-1-2
+					entry.smallThumbnail = "old-book-"+str(picture_number)+".jpg"
 					if "imageLinks" in dico["items"][0]["volumeInfo"].keys():
 						entry.smallThumbnail = dico["items"][0]["volumeInfo"]["imageLinks"].get("smallThumbnail","")
 						entry.thumbnail		 = dico["items"][0]["volumeInfo"]["imageLinks"].get("thumbnail","")
@@ -205,9 +221,9 @@ class StoreAValue(webapp.RequestHandler):
 			#				'bool'	: False,
 			#				'text'	: 'some text'})
 	
-	# ---------------------------------------------------------------
+	# ------------------------------------------------------------------------------
 	# Appelé lorsque l'on clique sur le bouton "Store a value", ou par le smartphone
-	# ---------------------------------------------------------------
+	# ------------------------------------------------------------------------------
 	def post(self):
 		tag = self.request.get('tag')
 		value = self.request.get('value')
@@ -256,7 +272,7 @@ class GetValue(webapp.RequestHandler):
 			# for item in query: # est aussi possible, car run() est implicite
 			for item in results: responselist.append(item.tag)
 		# -------------------------------------------------------------
-		# "user:*"		Liste complete des USERS
+		# "user:*"	Liste complete des USERS
 		# -------------------------------------------------------------
 		elif commande == "user:*":
 			query = db.GqlQuery("SELECT DISTINCT owner FROM StoredData")
@@ -267,6 +283,24 @@ class GetValue(webapp.RequestHandler):
 		# -------------------------------------------------------------
 		elif command_list[0] == "user":
 			query = db.GqlQuery("SELECT * FROM StoredData WHERE owner = :1", command_list[1])
+			results = query.run(limit=100)
+			for item in results: responselist.append(item.tag)
+		# -------------------------------------------------------------
+		# "requestedto:toto"	Liste des ISBN demandés à TOTO
+		# -------------------------------------------------------------
+		elif command_list[0] == "requestedto":
+			query = db.GqlQuery("SELECT * FROM StoredData WHERE owner = :1", command_list[1])
+			results = query.run(limit=100)
+			for item in results: 
+				if not item.requirer: pass
+				elif item.requirer == "null": pass
+				else: 
+					responselist.append(item.tag)
+		# -------------------------------------------------------------
+		# "requestedby:toto"	Liste des ISBN demandés par TOTO
+		# -------------------------------------------------------------
+		elif command_list[0] == "requestedby":
+			query = db.GqlQuery("SELECT * FROM StoredData WHERE requirer = :1", command_list[1])
 			results = query.run(limit=100)
 			for item in results: responselist.append(item.tag)
 		# -------------------------------------------------------------
