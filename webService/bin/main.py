@@ -181,8 +181,8 @@ class StoreAValue(webapp.RequestHandler):
 		entry.author		 = "Livre non reconnu"
 		entry.requirer		 = "null"
 		entry.description	 = DefaultDescription
-		entry.smallThumbnail = "book-pages.jpg"
-		entry.thumbnail		 = "book-pages.jpg"
+		entry.smallThumbnail = "pages.jpg"
+		entry.thumbnail		 = "pages.jpg"
 		entry.put()
 
 	# -----------------------------------------------------------------------------------------------------------
@@ -217,7 +217,7 @@ class StoreAValue(webapp.RequestHandler):
 					entry.publishedDate  = publishedDate.split('-')[0]
 					entry.language		 = dico["items"][0]["volumeInfo"].get("language","")
 					entry.description	 = dico["items"][0]["volumeInfo"].get("description",DefaultDescription)
-					picture_number       = len(entry.title)%3		# valeurs possibles: 0-1-2
+					picture_number       = len(entry.title)%5		# valeurs possibles: 0-1-2-3-4
 					entry.smallThumbnail = "old-book-"+str(picture_number)+".jpg"
 					if "imageLinks" in dico["items"][0]["volumeInfo"].keys():
 						entry.smallThumbnail = dico["items"][0]["volumeInfo"]["imageLinks"].get("smallThumbnail","")
