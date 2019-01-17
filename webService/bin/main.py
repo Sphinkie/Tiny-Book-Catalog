@@ -18,7 +18,7 @@ from django.utils import simplejson as json
 from google.appengine.api import urlfetch
 
 ### ===========================================================================================
-### Creation des colonnes de la table StoredData
+### Creation de la table StoredData
 ### Defining a column as a StringProperty limits individual values to 500 characters.
 ### To remove this limit, use a TextProperty instead.
 ### ===========================================================================================
@@ -37,6 +37,13 @@ class StoredData(db.Model):
 	textSnippet		= db.StringProperty(multiline=True)		# on y stocke le TEXTSNIPPET envoyé par l'API externe
 	date			= db.DateTimeProperty(required=True, auto_now=True)	# Creation date
 
+### ===========================================================================================
+### Creation de la table UserData
+### ===========================================================================================
+class UserData(db.Model):
+	name			= db.StringProperty(required=True)	# Prenom de l'utilisateur
+	group			= db.StringProperty()				# nom du groupe d'amis
+	calameo			= db.StringProperty()				# url de son catalogue calameo.com
 
 
 ### ===========================================================================================
@@ -55,6 +62,7 @@ You can invoke the get and store operations by hand, view the existing entries, 
 </p>
 </td> </tr> </table>'''
 
+DefaultDescription = u"Pas de résumé."	# on force en unicode, à cause des accents, pour pouvoir l'affecter à une entry.
 
 ### =============================================================================
 ### Page principale
@@ -110,12 +118,15 @@ class StoreAValue(webapp.RequestHandler):
 		elif command_list[0] == "create":
 			# Note: There's a potential readers/writers error here...
 			entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
-			# Si cette entry n'existe pas, on crée une nouvelle Entry
 			if not entry:
+				# Si cette entry n'existe pas, on crée une nouvelle entry
 				entry = StoredData(tag = tag)
 				entry.put()
 				self.fillEntryWithDefaultInfo(entry, tag)
 				self.fillEntryWithGoogleBooksInfo(entry,tag)
+			else:
+				# Si elle existe, on met à jour les infos
+				self.fillEntryWithGoogleBooksInfo(entry,tag)		
 			result = ["STORED", tag, command]
 		# ----------------------------------------------------------------------------
 		# Appropriation de tous les livres (debug)
@@ -135,11 +146,11 @@ class StoreAValue(webapp.RequestHandler):
 		elif command_list[0] == "delete":
 			# On recupère le owner du livre
 			entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", tag).get()
-			entry.description = "Livre de ["+entry.owner+"] supprime par ["+command_list[1]+"]"	# Ne pas mettre d'accents dans ce texte: plantage unicode/ascii
-			entry.put()
-			# Si c'est le même user qui demande la suppression: alors on peut la faire
-			if entry.owner == command_list[1]:
-				entry.delete()
+			if entry:
+				entry.description = "Livre de ["+entry.owner+"] supprime par ["+command_list[1]+"]"	# Ne pas mettre d'accents dans ce texte: plantage unicode/ascii
+				entry.put()
+				# Si c'est le même user qui demande la suppression: alors on peut la faire
+				if entry.owner == command_list[1]: entry.delete()
 			result = ["DELETED", tag, command]
 		# ----------------------------------------------------------------------------
 		# Réception d'une demande de livre
@@ -169,7 +180,7 @@ class StoreAValue(webapp.RequestHandler):
 		entry.title			 = "Code ISBN: %s"%(isbn)
 		entry.author		 = "Livre non reconnu"
 		entry.requirer		 = "null"
-		entry.description	 = "Pas de resume."
+		entry.description	 = DefaultDescription
 		entry.smallThumbnail = "book-pages.jpg"
 		entry.thumbnail		 = "book-pages.jpg"
 		entry.put()
@@ -205,7 +216,7 @@ class StoreAValue(webapp.RequestHandler):
 					publishedDate  		 = dico["items"][0]["volumeInfo"].get("publishedDate","")
 					entry.publishedDate  = publishedDate.split('-')[0]
 					entry.language		 = dico["items"][0]["volumeInfo"].get("language","")
-					entry.description	 = dico["items"][0]["volumeInfo"].get("description","Pas de resume.")
+					entry.description	 = dico["items"][0]["volumeInfo"].get("description",DefaultDescription)
 					picture_number       = len(entry.title)%3		# valeurs possibles: 0-1-2
 					entry.smallThumbnail = "old-book-"+str(picture_number)+".jpg"
 					if "imageLinks" in dico["items"][0]["volumeInfo"].keys():
@@ -262,32 +273,32 @@ class GetValue(webapp.RequestHandler):
 	def get_value(self, commande):
 		command_list = commande.split(":")
 		responselist = []
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		# "isbn:*"	Liste complete des ISBN
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		if commande == "isbn:*":
 			# on renvoie la liste complete des ISBN
 			query = db.GqlQuery("SELECT tag FROM StoredData")
 			results = query.run(limit=100)
 			# for item in query: # est aussi possible, car run() est implicite
 			for item in results: responselist.append(item.tag)
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		# "user:*"	Liste complete des USERS
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		elif commande == "user:*":
 			query = db.GqlQuery("SELECT DISTINCT owner FROM StoredData")
 			results = query.run(limit=100)
 			for item in results: responselist.append(item.owner)
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		# "user:toto"	Liste des ISBN du user TOTO
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		elif command_list[0] == "user":
 			query = db.GqlQuery("SELECT * FROM StoredData WHERE owner = :1", command_list[1])
 			results = query.run(limit=100)
 			for item in results: responselist.append(item.tag)
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		# "requestedto:toto"	Liste des ISBN demandés à TOTO
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		elif command_list[0] == "requestedto":
 			query = db.GqlQuery("SELECT * FROM StoredData WHERE owner = :1", command_list[1])
 			results = query.run(limit=100)
@@ -296,20 +307,21 @@ class GetValue(webapp.RequestHandler):
 				elif item.requirer == "null": pass
 				else: 
 					responselist.append(item.tag)
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		# "requestedby:toto"	Liste des ISBN demandés par TOTO
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		elif command_list[0] == "requestedby":
 			query = db.GqlQuery("SELECT * FROM StoredData WHERE requirer = :1", command_list[1])
 			results = query.run(limit=100)
 			for item in results: responselist.append(item.tag)
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		# "isbn:9700000000:userdata"	Renvoie les infos sur le livre 
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		elif command_list[0] == "isbn":
 			entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command_list[1]).get() 
 			if entry:
 				title = entry.title
+				owner = entry.owner
 				author = entry.author
 				requirer = entry.requirer
 				publisher = entry.publisher
@@ -317,6 +329,7 @@ class GetValue(webapp.RequestHandler):
 				smallThumbnail = entry.smallThumbnail
 			else:
 				title = "titre non trouvé"
+				owner = ""
 				author = ""
 				requirer = ""
 				publisher = ""
@@ -325,16 +338,17 @@ class GetValue(webapp.RequestHandler):
 			# if it is a html request, clean the variables.
 			if self.request.get('fmt') == "html":
 				if (title): title = escape(title)
-				if (author): owner = escape(author)
+				if (owner): owner = escape(owner)
+				if (author): author = escape(author)
 				if (requirer): requirer = escape(requirer)
 				if (publisher): publisher = escape(publisher)
 				if (publishedDate): publishedDate = escape(publishedDate)
 				if (smallThumbnail): smallThumbnail = escape(smallThumbnail)
 			# On remplit la liste des valeurs à retourner à l'application
-			responselist = [title,author,publisher,publishedDate,smallThumbnail,requirer]
-		# -------------------------------------------------------------
+			responselist = [title,author,publisher,publishedDate,smallThumbnail,requirer,owner]
+		# -------------------------------------------------------------------------------
 		# "desc:9700000000"	Renvoie le résumé du livre 
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		elif command_list[0] == "desc":
 			entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command_list[1]).get() 
 			if entry:
@@ -346,9 +360,9 @@ class GetValue(webapp.RequestHandler):
 			# On remplit la liste des valeurs à retourner à l'application
 			if description=="": responselist = [snippet]
 			else: responselist = [description]
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		# "pict:9700000000:userdata"	Renvoie l'url de la couverture du livre 
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		elif command_list[0] == "pict":
 			entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command_list[1]).get() 
 			if entry:
@@ -357,20 +371,22 @@ class GetValue(webapp.RequestHandler):
 				picture = ""
 			# On remplit la liste des valeurs à retourner à l'application
 			responselist = [picture]
-		# -------------------------------------------------------------
-		# "req:9700000000"	Renvoie le demandeur du livre
-		# -------------------------------------------------------------
-		elif command_list[0] == "req":
+		# -------------------------------------------------------------------------------
+		# "requirer:9700000000"	Renvoie le demandeur du livre, et son propriétaire actuel
+		# -------------------------------------------------------------------------------
+		elif command_list[0] == "requirer":
 			entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", command_list[1]).get() 
 			if entry:
 				requirer = entry.requirer
+				owner    = entry.owner
 			else:
 				requirer = ""
+				owner    = ""
 			# On remplit la liste des valeurs à retourner à l'application
-			responselist = [requirer]
-		# -------------------------------------------------------------
+			responselist = [requirer,owner]
+		# -------------------------------------------------------------------------------
 		# Autres cas
-		# -------------------------------------------------------------
+		# -------------------------------------------------------------------------------
 		else:
 			responselist = ["unknown command","","","",""]
 		# -------------------------------------------------------------
