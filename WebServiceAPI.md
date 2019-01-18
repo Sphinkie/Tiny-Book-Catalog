@@ -27,11 +27,13 @@ The Android application send a **tag** and get a **value** as a response.
 - tag ="`desc:9876543210`" returns the description (abstract) of the book (isbn).
 - tag = "`requirer:9876543210`" returns the requirer and the owner of the book.
 - tag = "`user:*`" returns the list of all known owners.
-- tag "`user:john`" returns the list of all isbn which have *John* for owner.
-- tag "`requestedby:bob`" returns the list of isbn requested by *Bob* (*Bob* is the requirer).
-- tag "`requestedto:john`" returns the list of isbn belonging to *John*  and requested by somebody. (owner is *John* and requirer is not null).
+- tag = "`user:john`" returns the list of all isbn which have *John* for owner.
+- tag = "`requestedby:bob`" returns the list of isbn requested by *Bob* (*Bob* is the requirer).
+- tag = "`requestedto:john`" returns the list of isbn belonging to *John*  and requested by somebody. (owner is *John* and requirer is not null).
 
 Note: "9876543210" represent an ISBN code.
+
+The **tag** is also returned in the response, so the Android application can get back the *requestid*, if needed.
 
 
 
