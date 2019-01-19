@@ -42,8 +42,8 @@ class StoredData(db.Model):
 ### ===========================================================================================
 class UserData(db.Model):
 	name			= db.StringProperty(required=True)	# Prenom de l'utilisateur
-	group			= db.StringProperty()				# nom du groupe d'amis
-	calameo			= db.StringProperty()				# url de son catalogue calameo.com
+	groupId			= db.StringProperty()				# nom du groupe d'amis
+	role			= db.StringProperty()				# member, admin, waiting, closed
 
 
 ### ===========================================================================================
@@ -75,10 +75,23 @@ class MainPage(webapp.RequestHandler):
 	def get(self):
 		write_page_header(self)
 		self.response.out.write(IntroMessage) 	# affiche le message d'intro
-		# write_available_operations(self)		# affiche la liste des operations possibles
 		show_stored_data(self)					# affiche le contenu de la base
 		self.response.out.write('</body></html>')
 
+### =============================================================================
+### Tache de cleanup (appelé par Cron)
+### =============================================================================
+class Cleanup(webapp.RequestHandler):
+
+	# ---------------------------------------------------------------
+	# Appelé lorsque l'on accède à la page 
+	# ---------------------------------------------------------------
+	def get(self):
+		self.response.out.write("<html><body>Task Cleanup GET<br/>")
+		entries = db.GqlQuery("SELECT * FROM StoredData WHERE owner = NULL")
+		for item in entries:
+			item.delete()
+		self.response.out.write("Cleanup DONE</body></html>\n")
 
 ### =============================================================================
 ### Implementing the operations
@@ -208,6 +221,12 @@ class StoreAValue(webapp.RequestHandler):
 			# contents : flux json contenant les infos du livre.
 			# -----------------------------------------------------------
 			dico = json.loads(contents)
+			# Note: On peut aussi stocker dans la base de la façon suivante:
+			# entry.update({'title' : dico["items"][0]["volumeInfo"].get("title",""),
+			#				'author': dico["items"][0]["volumeInfo"].get("authors",["null"])[0],
+			# 				'number': 4,
+			#				'bool'	: False,
+			#				'text'	: 'some text'})
 			if dico.get("totalItems",0) >0:
 				if "volumeInfo" in dico["items"][0].keys():
 					entry.title			 = dico["items"][0]["volumeInfo"].get("title","")
@@ -225,12 +244,6 @@ class StoreAValue(webapp.RequestHandler):
 					if "searchInfo" in dico["items"][0].keys():
 						entry.textSnippet = dico["items"][0]["searchInfo"].get("textSnippet","")
 					entry.put()
-			# On peut aussi stocker dans la base de la façon suivante:
-			# entry.update({'title' : dico["items"][0]["volumeInfo"].get("title",""),
-			#				'author': dico["items"][0]["volumeInfo"].get("authors",["null"])[0],
-			# 				'number': 4,
-			#				'bool'	: False,
-			#				'text'	: 'some text'})
 	
 	# ------------------------------------------------------------------------------
 	# Appelé lorsque l'on clique sur le bouton "Store a value", ou par le smartphone
@@ -253,7 +266,8 @@ class StoreAValue(webapp.RequestHandler):
 			 <p>Value<input type="text" name="value" /></p>
 			 <input type="hidden" name="fmt" value="html">
 			 <input type="submit" value="Store a value">
-		</form></body></html>\n''')
+		</form>
+		</body></html>\n''')
 
 
 ### =============================================================================
@@ -415,7 +429,8 @@ class GetValue(webapp.RequestHandler):
 			 <p>Tag<input type="text" name="tag" /></p>
 			 <input type="hidden" name="fmt" value="html">
 			 <input type="submit" value="Get value">
-		</form></body></html>\n''')
+		</form>
+		</body></html>\n''')
 
 
 ### =============================================================================
@@ -480,7 +495,7 @@ def write_page_header(self):
 		 <title>Tiny Book Catalog</title>
 		 </head>
 		 <body>''')
-	self.response.out.write('<h2>Tiny-Book-Catalog (App Inventor for Android - using TinyWebDB component)</h2>')
+	self.response.out.write('<h2>Tiny-Book-Catalog (App Inventor for Android using TinyWebDB component)</h2>')
 
 # ------------------------------------------------------------------------------
 # Show the tags and values as a table.
@@ -555,7 +570,8 @@ def WritePhoneOrWebToWeb(handler, writer):
 	handler.response.out.write('<html><body>')
 	handler.response.out.write('''<em>The server will send this to the component:</em><p/>''')
 	writer()
-	WriteWebFooter(handler, writer)
+	handler.response.out.write('''<p><a href="/"><i>Return to Main Page</i></a>''')
+	handler.response.out.write('</body></html>')
 
 # ------------------------------------------------------------------------------
 # Write to the Web (without checking fmt)
@@ -564,9 +580,6 @@ def WriteToWeb(handler, writer):
 	handler.response.headers['Content-Type'] = 'text/html'
 	handler.response.out.write('<html><body>')
 	writer()
-	WriteWebFooter(handler, writer)
-
-def WriteWebFooter(handler, writer):
 	handler.response.out.write('''<p><a href="/"><i>Return to Main Page</i></a>''')
 	handler.response.out.write('</body></html>')
 
@@ -580,10 +593,11 @@ def dbSafeDelete(key):
 # ------------------------------------------------------------------------------
 # Assign a class to each URL
 # ------------------------------------------------------------------------------
-application = webapp.WSGIApplication([('/',            MainPage),
-									  ('/storeavalue', StoreAValue),
-									  ('/deleteentry', DeleteEntry),
-									  ('/getvalue',    GetValue)  ],
+application = webapp.WSGIApplication([('/',              MainPage),
+									  ('/storeavalue',   StoreAValue),
+									  ('/deleteentry',   DeleteEntry),
+									  ('/getvalue',      GetValue),
+									  ('/tasks/cleanup', Cleanup)  ],
 									debug=True)
 
 # ------------------------------------------------------------------------------

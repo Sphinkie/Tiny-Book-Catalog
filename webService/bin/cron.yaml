@@ -1,0 +1,4 @@
+cron:
+- description: "cleanup job of books without owner"
+  url: /tasks/cleanup
+  schedule: every 1 hours

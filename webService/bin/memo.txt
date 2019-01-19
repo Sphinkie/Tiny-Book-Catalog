@@ -1,0 +1,30 @@
+-- ---------------------------
+-- MEMO DES COMMANDES GCLOUD
+-- ---------------------------
+
+
+> gcloud auth list				affiche votre compte gcloud
+> gcloud config list			affiche les propriétés de votre compte
+> gcloud info					affiche les infos de votre installation
+
+
+> dev_appserver.py app.yaml			lance le webService en local
+
+
+> gcloud app deploy				    déploie le webService sur Google Cloud
+> gcloud app logs tail -s default	affiche les logs du webService
+> gcloud app browse					accès au webservice via un browser
+> gcloud app deploy	cron.yaml	    déploie la cron table sur googleCloud
+
+
+-- Taches planifiées (exemples de schedule)
+-- ----------------------------------------
+every 1 mins
+every 1 hours
+every day 02:00
+
+ Accès au journal des Cron
+ https://console.cloud.google.com/appengine/taskqueues/cron?project=tiny-book-catalog
+ 
+
+
