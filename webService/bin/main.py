@@ -235,14 +235,15 @@ class StoreAValue(webapp.RequestHandler):
 					publishedDate  		 = dico["items"][0]["volumeInfo"].get("publishedDate","")
 					entry.publishedDate  = publishedDate.split('-')[0]
 					entry.language		 = dico["items"][0]["volumeInfo"].get("language","")
-					entry.description	 = dico["items"][0]["volumeInfo"].get("description",DefaultDescription)
+					# Description du livre (cad le résumé)
+					if "searchInfo" in dico["items"][0].keys(): entry.description = dico["items"][0]["searchInfo"].get("textSnippet",DefaultDescription)
+					entry.description = dico["items"][0]["volumeInfo"].get("description",DefaultDescription)
+					# Couverture du livre (thumbnail pour affichage sur PC, et smallThumbnail pour affichage sur smartphone)
 					picture_number       = len(entry.title)%5		# valeurs possibles: 0-1-2-3-4
 					entry.smallThumbnail = "old-book-"+str(picture_number)+".jpg"
 					if "imageLinks" in dico["items"][0]["volumeInfo"].keys():
 						entry.smallThumbnail = dico["items"][0]["volumeInfo"]["imageLinks"].get("smallThumbnail","")
 						entry.thumbnail		 = dico["items"][0]["volumeInfo"]["imageLinks"].get("thumbnail","")
-					if "searchInfo" in dico["items"][0].keys():
-						entry.textSnippet = dico["items"][0]["searchInfo"].get("textSnippet","")
 					entry.put()
 	
 	# -----------------------------------------------------------------------------------------------------------
