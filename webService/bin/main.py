@@ -245,6 +245,29 @@ class StoreAValue(webapp.RequestHandler):
 						entry.textSnippet = dico["items"][0]["searchInfo"].get("textSnippet","")
 					entry.put()
 	
+	# -----------------------------------------------------------------------------------------------------------
+	# Appel de l'API AWS
+	# doc = https://docs.aws.amazon.com/fr_fr/AWSECommerceService/latest/DG/EX_LookupbyISBN.html
+	# -----------------------------------------------------------------------------------------------------------
+	def fillEntryWithAWSBooksInfo(self, entry, isbn):
+		url = "http://webservices.amazon.com/onca/xml?"
+  		url += "Service=AWSECommerceService"
+  		url += "&Operation=ItemLookup"		# ou: &Operation=ItemSearch
+  		url += "&ResponseGroup=Large"
+  		url += "&SearchIndex=All"		# ou: &SearchIndex=Books
+  		url += "&IdType=ISBN"
+  		url += "&ItemId="+str(isbn)
+  		url += "&AWSAccessKeyId="+[Your_AWSAccessKeyID]
+  		url += "&AssociateTag="+[Your_AssociateTag]
+  		url += "&Timestamp="+[YYYY-MM-DDThh:mm:ssZ]
+  		url += "&Signature="+[Request_Signature]
+		result = urlfetch.fetch(url)
+		contents = result.content
+		logging.debug('%s '%(contents))
+		# -----------------------------------------------------------
+		# contents : flux xml contenant les infos du livre.
+		# -----------------------------------------------------------
+	
 	# ------------------------------------------------------------------------------
 	# Appelé lorsque l'on clique sur le bouton "Store a value", ou par le smartphone
 	# ------------------------------------------------------------------------------
