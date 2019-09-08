@@ -10,6 +10,7 @@ import logging
 import google_books
 #import amazon_books
 import standard_books
+import open_books
 
 from google.appengine.ext import db
 from google.appengine.ext.db import Key
@@ -68,11 +69,13 @@ class Catalog():
 			entry.put()
 			book_data = standard_books.getInfo(isbn)	# on remplit avec des infos par defaut
 			self.storeData(entry, book_data)
-			book_data = google_books.getInfo(isbn)		# on complète avec des infos de Google
+#			book_data = google_books.getInfo(isbn)		# on complète avec des infos de Google
+			book_data = open_books.getInfo(isbn)
 			self.storeData(entry, book_data)
 		else:
 			# Si elle existe, on met à jour les infos
-			book_data = google_books.getInfo(isbn)
+#			book_data = google_books.getInfo(isbn)
+			book_data = open_books.getInfo(isbn)
 			self.storeData(entry, book_data)
 
 	# ----------------------------------------------------------------------------

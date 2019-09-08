@@ -10,6 +10,7 @@
 
 import logging
 from Catalog import Catalog
+
 from cgi import escape	# Cette library remplace < par &lt;	> par &gt; et & par &amp;
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
