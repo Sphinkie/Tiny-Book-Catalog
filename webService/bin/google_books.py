@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: UTF-8
 # ==================================================================
-# Ce module retourne des valeurs pour un livre. issues de googleapis.com
+# Ce module retourne des valeurs pour un livre, issues de googleapis.com
 # ------------------------------------------------------------------
 # 07/09/2019 |    | DDL | Version initiale
 # ==================================================================

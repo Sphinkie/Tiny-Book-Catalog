@@ -127,7 +127,10 @@ class StoreAValue(webapp.RequestHandler):
 			 <input type="submit" value="Store a value">
 		</form>
 		<br/>
-		<p>Example: 9782253121206 create</p>
+		<p>Examples: <br/>
+			9782253121206 create<br/>
+			9782707322210 create<br/>
+		</p>
 		</body></html>''')
 
 	# ------------------------------------------------------------------------------

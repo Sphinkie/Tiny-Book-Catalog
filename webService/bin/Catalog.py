@@ -7,12 +7,10 @@
 # ==================================================================
 
 import logging
-import standard_books
 import google_books
+#import amazon_books
+import standard_books
 
-from django.utils import simplejson as json
-
-from google.appengine.api import urlfetch
 from google.appengine.ext import db
 from google.appengine.ext.db import Key
 
@@ -34,10 +32,6 @@ class StoredData(db.Model):
 	language		= db.StringProperty()		# on y stocke le LANGUAGE envoyé par l'API externe
 	thumbnail		= db.StringProperty()		# on y stocke le THUMBNAIL envoyé par l'API externe
 	date			= db.DateTimeProperty(required=True, auto_now=True)	# Creation date
-
-
-#DefaultDescription = u"Pas de résumé."	# on force en unicode, à cause des accents, pour pouvoir l'affecter à une entry.
-# standard_book_api = standard_book_api()
 
 
 ### =============================================================================
@@ -105,30 +99,6 @@ class Catalog():
 			entry.requirer = user
 			entry.put()
 
-
-	# -----------------------------------------------------------------------------------------------------------
-	# Appel de l'API AWS
-	# doc = https://docs.aws.amazon.com/fr_fr/AWSECommerceService/latest/DG/EX_LookupbyISBN.html
-	# -----------------------------------------------------------------------------------------------------------
-	def _fillEntryWithAWSBooksInfo(self, entry, isbn):
-		url = "http://webservices.amazon.com/onca/xml?"
-		url += "Service=AWSECommerceService"
-		url += "&Operation=ItemLookup"		# ou: &Operation=ItemSearch
-		url += "&ResponseGroup=Large"
-		url += "&SearchIndex=All"		# ou: &SearchIndex=Books
-		url += "&IdType=ISBN"
-		url += "&ItemId="+str(isbn)
-		url += "&AWSAccessKeyId="+"[Your_AWSAccessKeyID]"
-		url += "&AssociateTag="+"[Your_AssociateTag]"
-		url += "&Timestamp="+"[YYYY-MM-DDThh:mm:ssZ]"
-		url += "&Signature="+"[Request_Signature]"
-		result = urlfetch.fetch(url)
-		contents = result.content
-		logging.debug('%s '%(contents))
-		# -----------------------------------------------------------
-		# contents : flux xml contenant les infos du livre.
-		# -----------------------------------------------------------
-	
 	# -------------------------------------------------------------------------------
 	# on renvoie la liste complete des ISBN
 	# -------------------------------------------------------------------------------
@@ -286,7 +256,7 @@ class Catalog():
 		return StoredData.all().order("-date")	
 		
 	# ------------------------------------------------------------------------------
-	# On stocke les valeurs
+	# On stocke les valeurs en BDD
 	# Note: On peut aussi stocker dans la base de la façon suivante:
 	# 	entry.update({'title' : dico['items'][0]['volumeInfo'].get("title",""),
 	#				  'author': dico['items'][0]['volumeInfo'].get("authors",["null"])[0],

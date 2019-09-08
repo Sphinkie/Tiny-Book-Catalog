@@ -1,0 +1,117 @@
+body {margin:0;padding:0;font: 1em Arial, Helvetica, sans-serif;	background-color:#fffffb;}
+h1 {	background-color:#333333;color:#fffffb;font-size:1.8em;text-align:left;padding-left:20px;display:block;margin:0;padding-top:3px;padding-bottom:3px;margin-bottom:5px;}
+h2{font-size:1.5em;background-color:#f0f0f0;color:#b41780;padding-left:40px;padding-top:3px;padding-bottom:3px;margin-bottom:5px;}
+a{color:#2D5016;}
+a:visited{color:#5a2ca0;}
+p{text-align :left;}
+
+
+img{border:0px;}
+#header #laboratoire a{text-align:right;}
+#main {display: table;width: 100%;margin-top:10px;}
+#content {padding: 0px;margin-top:0px;padding-top:0px;}
+#gocontent{width:100%;display:block;font-size:0.8em;text-align:right;clear:both;color:#6c8f00;}
+#footer {padding: 0px;font-size:0.8em;}
+#aside img:first-child{margin-bottom:10px;margin-top:0px;padding-top:0px;text-align:center;vertical-align:top;}
+	
+	#nav a,#nav a:visited{padding-top:0px;padding-bottom:0px;height:30px;color:#fffffb;font-weight:bold;border-right: solid 1px #999999;line-height:30px;text-decoration:none;display:inline-block;text-align:center;font-size:1.3em;}
+	#nav a:hover{-webkit-transition-duration: 0.2s;-moz-transition-duration: 0.2s;transition-duration: 0.2s;color:#9ec219;}
+	#nav {display: block;text-decoration: none;border-top: solid 1px #999999;border-bottom: solid 1px #999999;background-color:#333333;padding:0 0 0 0;margin : 0 0 0 0;position:relative;}
+	#expand_menu{padding:0 0 0 3px;margin:0 0 0 0;}	
+	#img_expand{position:absolute;bottom:0px;padding:0 0 0 0;margin:0 0 0 0;}
+	
+	#logo {color:#9ec219;display:inline-block;padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px;font-family: 'Permanent Marker';text-decoration:none;}
+	.link_left:hover{color:#000000;font-weight:bold;text-shadow: 0em 0em 5px #fff;}
+	.link_left,.link_left:visited{margin-top:0px;margin-bottom:0px;padding-top:5px;min-height:25px;color:#333333;border-bottom: solid 1px #999999;text-decoration:none;text-align:center;font-size:1.2em;background-color:#f0f0f0;-webkit-transition-duration: 0.5s;-moz-transition-duration: 0.5s;transition-duration: 0.5s;display:inline-block;}
+	
+	.link_left_2{margin-top:0px;margin-bottom:0px;padding-top:5px;min-height:25px;color:#fffffb;border-bottom: solid 1px #999999;text-decoration:none;text-align:center;font-size:1.2em;background-color:#333333;display:inline-block;font-weight: bold;}
+
+
+.label_court{margin-top:7px;text-align : right;display:inline-block;border-bottom: 1px dotted #a6c815;padding-bottom: 1px;}
+
+	
+@media (min-width: 1200px) {
+	#nav a{width: 130px;}
+	#wrapper {position:relative;width:1200px;margin:auto;margin-top:0px;padding:0;}
+	#header {position:relative;width:1200px;margin:auto;}
+	#nav{height:30px;}
+	#logo {font-size:5.5em;}
+	#header #laboratoire{position:absolute;top:12px;right:0px;display:block;font-size:0.9em;}
+	#aside {width: 205px;padding-top:0px;margin-top:0px;vertical-align:top;}
+	#aside, #content {display: table-cell;padding: 5px;}
+	.link_left,.link_left_2,.link_left:visited{width: 205px;display:block;visibility: visible;}
+	#aside a:nth-child(2){border-top: solid 1px #999999;}
+	#aside a:first-child{margin-top:0px;padding-top:0px;text-align:center;vertical-align:top;}
+	#content{padding-left:30px;}	
+	.width_edt{width:744.095px;}
+	.label_court{width: 260px;}
+	.label_court_2{width: 260px;}
+	.label_court_4{width: 260px;}
+	.full_hide{display: none;}
+}
+@media (max-width: 1200px) {
+	#nav a{min-width: 110px;padding:0 2px 0 2px;}
+	#logo {font-size:3.5em;}
+	#header #laboratoire{right:0px;display:block;font-size:1em;}
+	#img_footer{width:100%;}
+	#gocontent{visibility: hidden;}
+	.mobile_hide{display: none;}
+	.link_left,.link_left_2,.link_left:visited{display:inline-block;padding: 0 5px 0 5px;margin: 5px 5px 5px 5px; }
+	.label_court{width:40%;max-width: 260px;}
+	.label_court_2{width:40%;max-width: 260px;}
+	.label_court_4{width:40%;max-width: 260px;}
+}
+
+.nav_mobile{display:inline-block;padding: 0 5px 0 5px;margin: 5px 5px 5px 5px;}
+.rotated {
+  transform: rotate(180deg);
+  -ms-transform: rotate(180deg); /* IE 9 */
+  -moz-transform: rotate(180deg); /* Firefox */
+  -webkit-transform: rotate(180deg); /* Safari and Chrome */
+  -o-transform: rotate(180deg); /* Opera */
+}
+
+
+
+
+
+.table_book{display:table;}
+.book_line{display: table-row;}
+.cover_book img{height: 80px;max-width:70px;text-align:center;}
+.book_cell{display: table-cell;vertical-align: top;}
+.small{font-size:0.8em;}
+.book_liste{display:inline-block;vertical-align: top;width:100%;max-width: 450px; }
+.cover_book{width:70px;}
+
+
+
+.center{text-align:center;}
+.plop{position:relative;top:0px;left:5px;margin:0;padding:0;display:block;}
+
+
+
+
+
+
+.right{text-align:right;}
+.right_2{text-align:right;display:block;}
+.left{text-align:left;}
+
+
+
+
+[type="submit"],a[class="submit"] {display:block;margin-top:7px;margin-bottom:7px;padding-top: 3px;padding-bottom:3px;border: none;text-align:center;margin:auto;background: #a6c815;color: #fff;font-weight: bolder;font-size: 1.3em;min-width:150px;width:100%;text-decoration:none;-moz-border-radius: 6px;-webkit-border-radius: 6px;border-radius: 6px;-webkit-transition-property: background-color;-webkit-transition-duration: 0.5s;-moz-transition-property: background-color;-moz-transition-duration: 0.5s;transition-property: background-color;transition-duration: 0.5s;}
+[type="submit"]:visited, a[class="submit"]:visited{color: #fff;}
+[type="submit"]:hover, [type="submit"]:focus,a[class="submit"]:hover, a[class="submit"]:focus {background: #b41780;cursor: pointer;color: #fff;box-shadow: 1px 1px 10px #888;}
+[data-tip] {position: relative;cursor: help;border-bottom: 1px dotted #b41780;position:relative;top:-2px;vertical-align:bottom;}
+[data-tip]:hover:after {content: attr(data-tip);position: absolute;top: 1.5em; left: -200px;padding: 5px 10px;background: #b41780;color: #fff;z-index:50;}
+
+
+.books{width: 100%;display:table;margin-bottom:20px;}
+.couverture{display:table-cell;width:30%;text-align:center;}
+.couverture img{max-width:100%;vertical-align: top;margin:auto;}
+.bookdescription{	display:table-cell;width:70%;}
+[href*="http://brenet.ens-lyon.fr"]
+{	text-decoration: none;color:black;font-size:0.7em;}
+.books [itemprop="name"]
+{	display:block;font-size:2em;font-weight:bold;text-decoration: none;}	
