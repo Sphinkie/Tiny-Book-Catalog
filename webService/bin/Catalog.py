@@ -1,16 +1,14 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-### ===========================================================================================
-### 
-### 
-### 
-### ===========================================================================================
-### Author: DDL
-### ===========================================================================================
+# coding: UTF-8
+# ==================================================================
+# Ce Module retourne des valeurs par defaut pour un livre.
+# ------------------------------------------------------------------
+# 07/09/2019 |    | DDL | Version initiale
+# ==================================================================
 
 import logging
-# from standard_book 
-import standard_book
+import standard_books
+import google_books
 
 from django.utils import simplejson as json
 
@@ -74,14 +72,14 @@ class Catalog():
 			# Si cette entry n'existe pas, on crée une nouvelle entry
 			entry = StoredData(tag = isbn, requirer="null")
 			entry.put()
-			#self._fillEntryWithDefaultInfo(entry, isbn)
-			book_data = standard_book.getInfo(isbn)
+			book_data = standard_books.getInfo(isbn)	# on remplit avec des infos par defaut
 			self.storeData(entry, book_data)
-			self._fillEntryWithGoogleBooksInfo(entry,isbn)
+			book_data = google_books.getInfo(isbn)		# on complète avec des infos de Google
+			self.storeData(entry, book_data)
 		else:
 			# Si elle existe, on met à jour les infos
-			self._fillEntryWithGoogleBooksInfo(entry,isbn)
-			pass
+			book_data = google_books.getInfo(isbn)
+			self.storeData(entry, book_data)
 
 	# ----------------------------------------------------------------------------
 	# Suppression d'un livre  (ISBN deleted by User)
@@ -107,56 +105,7 @@ class Catalog():
 			entry.requirer = user
 			entry.put()
 
-	# -----------------------------------------------------------------------------------------------------------
-	# Appel de Google Books
-	# doc = https://cloud.google.com/appengine/docs/standard/python/issue-requests#Python_Fetching_URLs_in_Python
-	# https://www.googleapis.com/books/v1/volumes?q=isbn:9782253121206&country=US
-	# -----------------------------------------------------------------------------------------------------------
-	def _fillEntryWithGoogleBooksInfo(self, entry, isbn):
-		url = "https://www.googleapis.com/books/v1/volumes?q=isbn:"+str(isbn)+"&country=US"
-		result = urlfetch.fetch(url)
-		'''try:
-			if result.status_code == 200:
-				self.response.out.write(result.content)
-			else:
-				self.response.out.write("Error: " + str(result.status_code))
-		except urlfetch.InvalidURLError:
-			self.response.out.write("URL is an empty string or obviously invalid")
-		except urlfetch.DownloadError:
-			self.response.out.write("Server cannot be contacted")
-		'''
-		contents = result.content
-		logging.debug('%s '%(contents))
-		# -----------------------------------------------------------
-		# contents : flux json contenant les infos du livre.
-		# -----------------------------------------------------------
-		dico = json.loads(contents)
-		# Note: On peut aussi stocker dans la base de la façon suivante:
-		# entry.update({'title' : dico["items"][0]["volumeInfo"].get("title",""),
-		#				'author': dico["items"][0]["volumeInfo"].get("authors",["null"])[0],
-		# 				'number': 4,
-		#				'bool'	: False,
-		#				'text'	: 'some text'})
-		if dico.get("totalItems",0) >0:
-			if "volumeInfo" in dico["items"][0].keys():
-				entry.title			 = dico["items"][0]["volumeInfo"].get("title","")
-				entry.author		 = dico["items"][0]["volumeInfo"].get("authors",["null"])[0]	# on prend le premier de la liste d'auteurs
-				entry.publisher		 = dico["items"][0]["volumeInfo"].get("publisher","")
-				publishedDate  		 = dico["items"][0]["volumeInfo"].get("publishedDate","")
-				entry.publishedDate  = publishedDate.split('-')[0]
-				entry.language		 = dico["items"][0]["volumeInfo"].get("language","")
-				# Description du livre (cad le résumé)
-				if "searchInfo" in dico["items"][0].keys(): 
-					entry.description = dico["items"][0]["searchInfo"].get("textSnippet",DefaultDescription)
-				entry.description = dico["items"][0]["volumeInfo"].get("description",DefaultDescription)
-				# Couverture du livre (thumbnail)
-				picture_number       = len(entry.title)%5		# valeurs possibles: 0-1-2-3-4
-				entry.thumbnail = "old-book-"+str(picture_number)+".jpg"
-				if "imageLinks" in dico["items"][0]["volumeInfo"].keys():
-					# entry.thumbnail = dico["items"][0]["volumeInfo"]["imageLinks"].get("smallThumbnail","")
-					entry.thumbnail	= dico["items"][0]["volumeInfo"]["imageLinks"].get("thumbnail","")
-				entry.put()
-	
+
 	# -----------------------------------------------------------------------------------------------------------
 	# Appel de l'API AWS
 	# doc = https://docs.aws.amazon.com/fr_fr/AWSECommerceService/latest/DG/EX_LookupbyISBN.html
@@ -338,11 +287,20 @@ class Catalog():
 		
 	# ------------------------------------------------------------------------------
 	# On stocke les valeurs
+	# Note: On peut aussi stocker dans la base de la façon suivante:
+	# 	entry.update({'title' : dico['items'][0]['volumeInfo'].get("title",""),
+	#				  'author': dico['items'][0]['volumeInfo'].get("authors",["null"])[0],
+	# 				  'number': 4,
+	#				  'bool'  : False,
+	#				  'text'  : "some text"})
 	# ------------------------------------------------------------------------------
 	def storeData(self , entry, book_data):
-		if "title"   in book_data: entry.title=book_data.get("title")
-		if "author"  in book_data: entry.author=book_data.get("author")
-		if "desc"    in book_data: entry.description=book_data.get("desc")
-		if "picture" in book_data: entry.thumbnail=book_data.get("picture")
+		if "title"         in book_data: entry.title=book_data.get("title")
+		if "author"        in book_data: entry.author=book_data.get("author")
+		if "picture"       in book_data: entry.thumbnail=book_data.get("picture")
+		if "language"      in book_data: entry.language=book_data.get("language")
+		if "publisher"     in book_data: entry.publisher=book_data.get("publisher")
+		if "description"   in book_data: entry.description=book_data.get("description")
+		if "publishedDate" in book_data: entry.publishedDate=book_data.get("publishedDate")
 		entry.put()
 		

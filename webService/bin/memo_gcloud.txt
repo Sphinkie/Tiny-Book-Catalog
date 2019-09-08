@@ -1,6 +1,6 @@
--- ---------------------------
+-- ----------------------------------------
 -- MEMO DES COMMANDES GCLOUD
--- ---------------------------
+-- ----------------------------------------
 
 
 > gcloud auth list				affiche votre compte gcloud
@@ -8,7 +8,14 @@
 > gcloud info					affiche les infos de votre installation
 
 
+-- ----------------------------------------
+-- Tests en local
+-- ----------------------------------------
 > dev_appserver.py app.yaml			lance le webService en local
+
+API server at: http://localhost:55203
+Admin server at: http://localhost:8000
+Default module at: http://localhost:8080
 
 
 > gcloud app deploy				    déploie le webService sur Google Cloud
