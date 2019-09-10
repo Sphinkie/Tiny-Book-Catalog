@@ -25,12 +25,14 @@ def getInfo(isbn):
 			contents = result.content
 			logging.debug('%s '%(contents))
 		else:
-			print("Error: " + str(result.status_code))
+			logging.error("Error: " + str(result.status_code))
 			return data
 	except urlfetch.InvalidURLError:
-		print("URL is an empty or invalid string")
+		logging.exception("URL is an empty or invalid string")
+		return data
 	except urlfetch.DownloadError:
-		print("<html>Server cannot be contacted</html>")
+		logging.exception("<html>Server cannot be contacted</html>")
+		return data
 	'''
 	print("<html>")
 	print(str(url)+"\n")

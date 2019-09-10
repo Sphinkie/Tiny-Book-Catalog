@@ -15,7 +15,6 @@ from cgi import escape	# Cette library remplace < par &lt;	> par &gt; et & par &
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from django.utils import simplejson as json
-#from google.appengine.api import urlfetch
 
 cat = Catalog()
 
@@ -299,15 +298,13 @@ def write_page_header(self):
 	self.response.out.write('''
 		 <html>
 			<head>
-			<style type="text/css">
-				body {margin-left: 5% ; margin-right: 5%; margin-top: 0.5in;
-				font-family: verdana, arial,"trebuchet ms", helvetica, sans-serif;}
-				ul {list-style: disc;}
-			</style>
-			<title>Tiny Book Catalog</title>
+				<style type="text/css">
+					body {margin-left: 5% ; margin-right: 5%; margin-top: 0.5in; font-family: verdana, arial,"trebuchet ms", helvetica, sans-serif;}
+					ul {list-style: disc;}
+				</style>
+				<title>Tiny Book Catalog</title>
 			</head>
-		 <body>''')
-	self.response.out.write('''<h2>Tiny-Book-Catalog (App Inventor for Android using TinyWebDB component)</h2>''')
+			<body>''')
 	
 # ------------------------------------------------------------------------------
 # Generate the page footer
@@ -319,6 +316,7 @@ def write_page_footer(self):
 # Generate the page Intro Message
 # ------------------------------------------------------------------------------
 def write_page_intro_message(self):
+	self.response.out.write('''<h2>Tiny-Book-Catalog (App Inventor for Android using TinyWebDB component)</h2>''')
 	self.response.out.write('''
 		<table border=0>
 		<tr valign="top">
@@ -353,7 +351,6 @@ def write_stored_data(self):
 				 <th>Created (GMT)</th>
 			</tr>''')
 	entries = cat.getAllItems()
-	print (entries)
 	for e in entries:
 		entry_key_string = str(e.key())
 		self.response.out.write('<tr>')

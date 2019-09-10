@@ -6,7 +6,7 @@
 > gcloud auth list				affiche votre compte gcloud
 > gcloud config list			affiche les propriétés de votre compte
 > gcloud info					affiche les infos de votre installation
-
+> gcloud config set project tiny-web-catalog 
 
 -- ----------------------------------------
 -- Tests en local

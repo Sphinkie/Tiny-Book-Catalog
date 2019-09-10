@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: UTF-8
 # ==================================================================
-# Ce Module retourne des valeurs par defaut pour un livre.
+# Ce module gère un catalogue de livres.
 # ------------------------------------------------------------------
 # 07/09/2019 |    | DDL | Version initiale
 # ==================================================================
@@ -177,7 +177,7 @@ class Catalog():
 			publishedDate = entry.publishedDate
 			thumbnail = entry.thumbnail
 		else:
-			title = "titre non trouvé"
+			title = u"titre non trouvé"
 			owner = ""
 			author = ""
 			requirer = ""

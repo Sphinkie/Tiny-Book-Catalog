@@ -66,12 +66,6 @@ def getInfo(isbn):
 	except urllib2.URLError:
 		logging.exception("Exception fetching url %s"%url_json)
 		return data
-	'''
-	print("<html>Debug:<br/>")
-	print(str(url_json)+"<br/>")
-	print(str(contents)+"<br/>")
-	print("</html>")
-	'''
 	# Analyse des data recues
 	dico = json.loads(contents)
 	if len(dico)>0:
@@ -85,9 +79,6 @@ def getInfo(isbn):
 
 	return data
 
-# TODO : afficher la mainpage en unicode
-# TODO : faire marcher le logging
-	
 # ------------------------------------------------------------------------------
 # Demande des infos completes sur le livre (il y a parfois un résumé en plus)
 # ------------------------------------------------------------------------------
@@ -100,7 +91,7 @@ def getInfoFull(isbn):
 		logging.debug('%s '%(contents))
 	except urllib2.URLError:
 		logging.exception("Exception fetching url %s"%url_json)
-		print("Error: " + str(result.status_code))
+		logging.error("Error: " + str(result.status_code))
 		return data
 	# -----------------------------------------------------------
 	# contents : var_OLBookInfo = {flux json};
