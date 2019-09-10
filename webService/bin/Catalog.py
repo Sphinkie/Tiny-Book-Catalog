@@ -174,16 +174,17 @@ class Catalog():
 			author = entry.author
 			requirer = entry.requirer
 			publisher = entry.publisher
-			publishedDate = entry.publishedDate
 			thumbnail = entry.thumbnail
+			publishedDate = entry.publishedDate
 		else:
 			title = u"titre non trouvé"
 			owner = ""
 			author = ""
 			requirer = ""
 			publisher = ""
-			publishedDate = ""
 			thumbnail = ""
+			publishedDate = ""
+		'''
 		# if it is a html request, clean the variables.
 		if self.request.get('fmt') == "html":
 			if (title): title = escape(title)
@@ -193,6 +194,7 @@ class Catalog():
 			if (publisher): publisher = escape(publisher)
 			if (publishedDate): publishedDate = escape(publishedDate)
 			if (thumbnail): thumbnail = escape(thumbnail)
+		'''
 		# On remplit la liste des valeurs à retourner à l'application
 		return [title,author,publisher,publishedDate,thumbnail,requirer,owner]
 
