@@ -166,50 +166,50 @@ class GetValue(webapp.RequestHandler):
 		command_list = commande.split(":")
 		responselist = []
 		# -------------------------------------------------------------------------------
-		# "isbn:*"	Liste complete des ISBN
+		# "isbn:*"	Demande de la Liste complete des ISBN
 		# -------------------------------------------------------------------------------
 		if commande == "isbn:*":
 			responselist = cat.getISBNList()
 		# -------------------------------------------------------------------------------
-		# "user:*"	Liste complete des USERS
+		# "user:*"	Demande de la Liste complete des USERS
 		# -------------------------------------------------------------------------------
 		elif commande == "user:*":
 			responselist = cat.getUserList()
 		# -------------------------------------------------------------------------------
-		# "user:toto"	Liste des ISBN du user TOTO
+		# "user:toto"	Demande de la Liste des ISBN du user TOTO
 		# -------------------------------------------------------------------------------
 		elif command_list[0] == "user":
 			responselist = cat.getBookListOwnedBy(command_list[1])
 		# -------------------------------------------------------------------------------
-		# "requestedto:toto"	Liste des ISBN demandés à TOTO
+		# "requestedto:toto"	Demande de la Liste des ISBN demandés à TOTO
 		# -------------------------------------------------------------------------------
 		elif command_list[0] == "requestedto":
 			responselist = cat.getBookListRequestedTo(command_list[1])
 		# -------------------------------------------------------------------------------
-		# "requestedby:toto"	Liste des ISBN demandés par TOTO
+		# "requestedby:toto"	Demande de la Liste des ISBN demandés par TOTO
 		# -------------------------------------------------------------------------------
 		elif command_list[0] == "requestedby":
 			responselist = cat.getBookListRequestedBy(command_list[1])
 		# -------------------------------------------------------------------------------
-		# "isbn:9700000000:userdata"	Renvoie les infos sur le livre 
+		# "isbn:9700000000:userdata"	Demande des infos sur le livre 
 		# -------------------------------------------------------------------------------
 		elif command_list[0] == "isbn":
-			responselist = getBookInfo(command_list[1])
+			responselist = cat.getBookInfo(command_list[1])
 		# -------------------------------------------------------------------------------
-		# "desc:9700000000"	Renvoie le résumé du livre 
+		# "desc:9700000000"				Demande du résumé du livre 
 		# -------------------------------------------------------------------------------
 		elif command_list[0] == "desc":
-			responselist = getBookDescription(command_list[1])
+			responselist = cat.getBookDescription(command_list[1])
 		# -------------------------------------------------------------------------------
-		# "pict:9700000000:userdata"	Renvoie l'url de la couverture du livre 
+		# "pict:9700000000:userdata"	Demande de l'url de la couverture du livre 
 		# -------------------------------------------------------------------------------
 		elif command_list[0] == "pict":
-			responselist = getBookPicture(command_list[1])
+			responselist = cat.getBookPicture(command_list[1])
 		# -------------------------------------------------------------------------------
-		# "requirer:9700000000"	Renvoie le demandeur du livre, et son propriétaire actuel
+		# "requirer:9700000000"			Demande du demandeur du livre
 		# -------------------------------------------------------------------------------
 		elif command_list[0] == "requirer":
-			responselist = getBookRequirer(command_list[1])
+			responselist = cat.getBookRequirer(command_list[1])
 		# -------------------------------------------------------------------------------
 		# Autres cas
 		# -------------------------------------------------------------------------------

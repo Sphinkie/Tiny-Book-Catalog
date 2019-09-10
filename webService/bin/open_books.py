@@ -100,18 +100,19 @@ def getInfoFull(isbn):
 	if len(dico)>0:
 		if "info_url" in dico["ISBN:"+isbn].keys(): 
 			info_url = dico["ISBN:"+isbn]["info_url"]
-			getBookInfo(info_url, data)
+			getTitleInfo(info_url, data)
 		if "thumbnail_url" in dico["ISBN:"+isbn].keys():
 			thumbnail_url = dico["ISBN:"+isbn]["thumbnail_url"]
 			getCoverInfo(thumbnail_url, data)
 	return data
 
 # ------------------------------------------------------------------------------
-# Extraction des informations de info_url
+# Extraction des informations de info_url. On les met dans le dico 'data'
 # ------------------------------------------------------------------------------
-def getBookInfo(url, data):
+def getTitleInfo(url, data):
 	# url est du type: https://openlibrary.org/books/OL8984046M/Les_perroquets
 	url_path = url.split("/")
+	# on transforme en: https://openlibrary.org/books/OL8984046M.json
 	url_json = url_path[0]+"//"+url_path[2]+"/"+url_path[3]+"/"+url_path[4]+".json"
 	try:
 		result = urllib2.urlopen(url_json)
@@ -153,7 +154,7 @@ def getAuthorInfo(url, data):
 # ------------------------------------------------------------------------------
 def getCoverInfo(url_S, data):
 	# url est du type: https://covers.openlibrary.org/b/id/990870-S.jpg
-	# on a aussi l'info dans la balise Covers du flux Json
+	# Note: on a aussi l'info dans la balise Covers du flux Json
 	url_M = url_S.replace("-S.jpg", "-M.jpg")
 	# on prend l'image de taille M (on a: S M L)
 	data["picture"] = url_M
