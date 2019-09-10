@@ -1,0 +1,309 @@
+{
+	"ISBN:9780345339713": {
+		"publishers": [
+			{
+				"name": "Del Rey"
+			}
+		],
+		"links": [
+			{
+				"url": "https://en.wikipedia.org/wiki/The_Two_Towers",
+				"title": "The Two Towers - Wikipedia"
+			},
+			{
+				"url": "http://www.tolkienestate.com/en/writing/tales-of-middle-earth/the-lord-of-the-rings.html",
+				"title": "Tolkien Estate | The Lord of the Rings"
+			}
+		],
+		"title": "The Two Towers",
+		"url": "https://openlibrary.org/books/OL26447987M/The_Two_Towers",
+		"identifiers": {
+			"isbn_13": [
+				"9780345339713"
+			],
+			"amazon": [
+				"0345339711"
+			],
+			"isbn_10": [
+				"0345339711"
+			],
+			"openlibrary": [
+				"OL26447987M"
+			],
+			"goodreads": [
+				"40087152"
+			]
+		},
+		"cover": {
+			"small": "https://covers.openlibrary.org/b/id/8170126-S.jpg",
+			"large": "https://covers.openlibrary.org/b/id/8170126-L.jpg",
+			"medium": "https://covers.openlibrary.org/b/id/8170126-M.jpg"
+		},
+		"subject_places": [
+			{
+				"url": "https://openlibrary.org/subjects/place:middle_earth_(imaginary_place)",
+				"name": "Middle Earth (Imaginary place)"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:tierra_media",
+				"name": "Tierra Media"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:river_anduin",
+				"name": "River Anduin"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:middle_earth",
+				"name": "Middle Earth"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:minas_tirith",
+				"name": "Minas Tirith"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:rohan",
+				"name": "Rohan"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:fangorn_forrest",
+				"name": "Fangorn Forrest"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:moria",
+				"name": "Moria"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:edoras",
+				"name": "Edoras"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:helm's_deep",
+				"name": "Helm's Deep"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:isengard",
+				"name": "Isengard"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:gondor",
+				"name": "Gondor"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:mount_doom",
+				"name": "Mount Doom"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:ithilien",
+				"name": "Ithilien"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/place:dead_marshes",
+				"name": "Dead Marshes"
+			}
+		],
+		"subjects": [
+			{
+				"url": "https://openlibrary.org/subjects/ents",
+				"name": "Ents"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/orcs",
+				"name": "Orcs"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/hobbits",
+				"name": "hobbits"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/magic",
+				"name": "magic"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/ficción_fantástica_inglesa",
+				"name": "Ficción fantástica inglesa"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/ficción",
+				"name": "Ficción"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/translations_into_spanish",
+				"name": "translations into Spanish"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/readers_for_new_literates",
+				"name": "readers for new literates"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/the_lord_of_the_rings",
+				"name": "The Lord of the Rings"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/english_fantasy_fiction",
+				"name": "English Fantasy fiction"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/in_library",
+				"name": "In library"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/open_library_staff_picks",
+				"name": "Open Library Staff Picks"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/accessible_book",
+				"name": "Accessible book"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/fiction",
+				"name": "Fiction"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/large_type_books",
+				"name": "Large type books"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/fantasy",
+				"name": "Fantasy"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/protected_daisy",
+				"name": "Protected DAISY"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/popular_print_disabled_books",
+				"name": "Popular Print Disabled Books"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/popular_carousel",
+				"name": "Popular Carousel"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/internet_archive_wishlist",
+				"name": "Internet Archive Wishlist"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/middle_earth_(imaginary_place)",
+				"name": "Middle Earth (Imaginary place)"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/tierra_media_(lugar_imaginario)",
+				"name": "Tierra Media (Lugar imaginario)"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/baggins,_frodo_(personaje_literario)",
+				"name": "Baggins, Frodo (Personaje literario)"
+			}
+		],
+		"subject_people": [
+			{
+				"url": "https://openlibrary.org/subjects/person:gandalf",
+				"name": "Gandalf"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:frodo_baggins",
+				"name": "Frodo Baggins"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:aragorn_ii",
+				"name": "Aragorn II"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:merry",
+				"name": "Merry"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:pippin",
+				"name": "Pippin"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:samwise",
+				"name": "Samwise"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:boromir",
+				"name": "Boromir"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:saruman_the_white",
+				"name": "Saruman the White"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:uruk-hai",
+				"name": "Uruk-hai"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:sauron",
+				"name": "Sauron"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:shelob",
+				"name": "Shelob"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:legolas",
+				"name": "Legolas"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:gimli",
+				"name": "Gimli"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:huorns",
+				"name": "Huorns"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:gollum",
+				"name": "Gollum"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:éomer",
+				"name": "Éomer"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:gríma_wormtongue",
+				"name": "Gríma Wormtongue"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:the_balrog",
+				"name": "the Balrog"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:treebeard",
+				"name": "Treebeard"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:rohirrim",
+				"name": "Rohirrim"
+			},
+			{
+				"url": "https://openlibrary.org/subjects/person:théoden",
+				"name": "Théoden"
+			}
+		],
+		"key": "/books/OL26447987M",
+		"authors": [
+			{
+				"url": "https://openlibrary.org/authors/OL26320A/J.R.R._Tolkien",
+				"name": "J.R.R. Tolkien"
+			}
+		],
+		"publish_date": "2018",
+		"excerpts": [
+			{
+				"comment": "",
+				"text": "ARAGORN sped on up the hill.",
+				"first_sentence": true
+			},
+			{
+				"comment": "",
+				"text": "ARAGORN sped on up the hill."
+			}
+		],
+		"publish_places": [
+			{
+				"name": "New York, USA"
+			}
+		]
+	}
+}

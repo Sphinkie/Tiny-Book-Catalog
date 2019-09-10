@@ -61,20 +61,20 @@ class Catalog():
 			# Si cette entry n'existe pas, on crée une nouvelle entry
 			entry = StoredData(tag = isbn, requirer="null")
 			entry.put()
-			book_data = standard_books.getInfo(isbn)	# on remplit avec des infos par defaut
-			self.storeData(entry, book_data)
-			book_data = google_books.getInfo(isbn)		# on complète avec des infos de Google
-			self.storeData(entry, book_data)
-			book_data = open_books.getInfo(isbn)		# on complète avec des infos de OpenLibray
-			self.storeData(entry, book_data)
+			std_data = standard_books.getInfo(isbn)		# on remplit avec des infos par defaut
+			self.storeData(entry, std_data)
+			google_data = google_books.getInfo(isbn)	# on complète avec des infos de Google
+			self.storeData(entry, google_data)
+			open_data = open_books.getInfo(isbn)		# on complète avec des infos de OpenLibray
+			self.storeData(entry, open_data)
 		else:
 			# Si elle existe, on met à jour les infos
-			book_data = standard_books.getInfo(isbn)	# on remplit avec des infos par defaut
-			self.storeData(entry, book_data)
-			book_data = google_books.getInfo(isbn)		# on complète avec des infos de Google
-			self.storeData(entry, book_data)
-			book_data = open_books.getInfo(isbn)		# on complète avec des infos de OpenLibray
-			self.storeData(entry, book_data)
+			google_data = google_books.getInfo(isbn)	# on complète avec des infos de Google
+			self.storeData(entry, google_data)
+			open_data = open_books.getInfo(isbn)		# on complète avec des infos de OpenLibray
+			self.storeData(entry, open_data)
+			open_data = open_books.getInfoFull(isbn)	# on complète avec des infos de OpenLibray
+			self.storeData(entry, open_data)
 
 	# ----------------------------------------------------------------------------
 	# Positionne le OWNER d'un livre (livre existant)
@@ -269,6 +269,7 @@ class Catalog():
 	# On stocke les valeurs en BDD
 	# ------------------------------------------------------------------------------
 	def storeData(self , entry, book_data):
+		if not book_data: return
 		if "title"         in book_data : entry.title=book_data.get("title")
 		if "author"        in book_data : entry.author=book_data.get("author")
 		if "picture"       in book_data : entry.thumbnail=book_data.get("picture")

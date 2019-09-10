@@ -1,0 +1,62 @@
+{
+	"series": [
+		"The Lord of the Rings, #2"
+	],
+	"covers": [
+		8170126
+	],
+	"latest_revision": 3,
+	"edition_name": "2018 Del Rey Mass Market Edition",
+	"title": "The Two Towers",
+	"languages": [
+		{
+			"key": "/languages/eng"
+		}
+	],
+	"type": {
+		"key": "/type/edition"
+	},
+	"revision": 3,
+	"publishers": [
+		"Del Rey"
+	],
+	"description": {
+		"type": "/type/text",
+		"value": "The middle novel in The Lord of the Rings—the greatest fantasy epic of all time—which began in The Fellowship of the Ring, and which reaches its magnificent climax in The Return of the King.\r\n\r\nNominated as one of America’s best-loved novels by PBS’s The Great American Read\r\n\r\nThe Fellowship is scattered. Some are bracing hopelessly for war against the ancient evil of Sauron. Some are contending with the treachery of the wizard Saruman. Only Frodo and Sam are left to take the accursed One Ring, ruler of all the Rings of Power, to be destroyed in Mordor, the dark realm where Sauron is supreme. Their guide is Gollum, deceitful and lust-filled, slave to the corruption of the Ring.\r\n\r\nSource: http://www.randomhousebooks.com/books/179231/"
+	},
+	"physical_format": "Mass Market Paperback",
+	"last_modified": {
+		"type": "/type/datetime",
+		"value": "2018-05-09T13:50:47.131744"
+	},
+	"key": "/books/OL26447987M",
+	"publish_places": [
+		"New York, USA"
+	],
+	"classifications": {},
+	"created": {
+		"type": "/type/datetime",
+		"value": "2018-05-09T13:47:37.044944"
+	},
+	"identifiers": {
+		"amazon": [
+			"0345339711"
+		],
+		"goodreads": [
+			"40087152"
+		]
+	},
+	"isbn_13": [
+		"9780345339713"
+	],
+	"isbn_10": [
+		"0345339711"
+	],
+	"publish_date": "2018",
+	"copyright_date": "1994",
+	"works": [
+		{
+			"key": "/works/OL262757W"
+		}
+	]
+}

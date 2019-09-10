@@ -53,7 +53,7 @@ from django.utils import simplejson as json
 import urllib2
 
 # ------------------------------------------------------------------------------
-# Demande des infos completes sur le livre
+# Demande des infos sur le livre
 # ------------------------------------------------------------------------------
 def getInfo(isbn):
 	data = dict()
@@ -77,34 +77,21 @@ def getInfo(isbn):
 	if len(dico)>0:
 		if "ISBN:"+isbn in dico.keys():
 			data_dico = dico["ISBN:"+isbn]
-#			data["publisher"] = dico["publishers"][0]
-#			info_url = dico["ISBN:"+isbn]["info_url"]
-#			getBookInfo(info_url, data)
-		if "publishers"   in data_dico.keys(): data["publisher"] = data_dico["publishers"][0]["name"]
-		'''
-		if "thumbnail_url" in dico["ISBN:"+isbn].keys():
-			thumbnail_url = dico["ISBN:"+isbn]["thumbnail_url"]
-			getCoverInfo(thumbnail_url, data)
-		if "title"        in dico.keys(): data["title"] = dico["title"]
-		if "publish_date" in dico.keys(): data["publishedDate"] = dico["publish_date"][-4:]
-		if "languages"    in dico.keys(): data["language"] = str(dico["languages"][0]["key"]).split("/")[2]
-		if "description"  in dico.keys(): data["description"] = dico["description"]["value"]
-		if "authors"      in dico.keys(): 
-			author_url = dico["authors"][0]["key"]
-			getAuthorInfo(author_url, data)	return data
-		'''
-		data["description"] = u"sans"
+			if "publish_date" in data_dico.keys(): data["publishedDate"] = data_dico["publish_date"][-4:]
+			if "publishers"   in data_dico.keys(): data["publisher"] = data_dico["publishers"][0]["name"]
+			if "cover"        in data_dico.keys(): data["picture"] = data_dico["cover"]["medium"]
+			if "authors"      in data_dico.keys(): data["author"]= data_dico["authors"][0]["name"]
+			if "title"        in data_dico.keys(): data["title"] = data_dico["title"]
 
-# TODO 1 traiter data
+	return data
 
-# TODO 2: encode pb sur la description : soit regler au niveu de textproperty soit try/catch (GOOGLE API)
-
-# TODO 3: faire marcher le logging
+# TODO : afficher la mainpage en unicode
+# TODO : faire marcher le logging
 	
 # ------------------------------------------------------------------------------
-# Demande des infos réduites sur le livre
+# Demande des infos completes sur le livre (il y a parfois un résumé en plus)
 # ------------------------------------------------------------------------------
-def getInfoShort(isbn):
+def getInfoFull(isbn):
 	data = dict()
 	url_json = "https://openlibrary.org/api/books?bibkeys=ISBN:"+str(isbn)+"&format=json"
 	try:

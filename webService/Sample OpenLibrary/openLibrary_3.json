@@ -1,0 +1,73 @@
+https://openlibrary.org/books/OL24298430M.json
+{
+	"number_of_pages": 717,
+	"series": [
+		"Le Seigneur des Anneaux, Tome 1"
+	],
+	"covers": [
+		8177386,
+		6425390
+	],
+	"latest_revision": 5,
+	"title": "La Communauté de l'Anneau",
+	"translation_of": "The Fellowship of the Ring",
+	"languages": [
+		{
+			"key": "/languages/fre"
+		}
+	],
+	"oclc_numbers": [
+		"859053085"
+	],
+	"type": {
+		"key": "/type/edition"
+	},
+	"revision": 5,
+	"publishers": [
+		"Folio Junior"
+	],
+	"description": {
+		"type": "/type/text",
+		"value": "Dans les vertes prairies de la Comté, les Hobbits, ou Semi-hommes, vivaient en paix… Jusqu'au jour fatal où l'un d'entre eux, au cours de ses voyages, entra en possession de l'Anneau Unique aux immenses pouvoirs. Pour le reconquérir, Sauron, le seigneur ténébreux, va déchaîner toutes les forces du Mal. Frodon, le Porteur de l'Anneau, Gandalf, le magicien, et leurs intrépides compagnons réussiront-ils à écarter la menace qui pèse sur la Terre du Milieu ?\r\n\r\nLa Communauté de l'Anneau regroupe le Livre I et le Livre II du \"Seigneur des Anneaux\".\r\n\r\nSource: http://www.gallimard-jeunesse.fr/Catalogue/GALLIMARD-JEUNESSE/Folio-Junior/Le-Seigneur-des-Anneaux"
+	},
+	"physical_format": "Paperback",
+	"last_modified": {
+		"type": "/type/datetime",
+		"value": "2018-05-22T13:14:39.831550"
+	},
+	"key": "/books/OL24298430M",
+	"classifications": {},
+	"created": {
+		"type": "/type/datetime",
+		"value": "2010-06-23T15:07:29.262760"
+	},
+	"identifiers": {
+		"amazon": [
+			"2070612880"
+		],
+		"google": [
+			"7gJhHwAACAAJ"
+		],
+		"amazon.de_asin": [
+			"2070612880"
+		],
+		"goodreads": [
+			"3009630"
+		],
+		"amazon.it_asin": [
+			"2070612880"
+		]
+	},
+	"isbn_13": [
+		"978-2070612888"
+	],
+	"isbn_10": [
+		"2070612880"
+	],
+	"publish_date": "2007",
+	"works": [
+		{
+			"key": "/works/OL15331214W"
+		}
+	]
+}

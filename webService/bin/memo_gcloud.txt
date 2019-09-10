@@ -17,6 +17,15 @@ API server at: http://localhost:55203
 Admin server at: http://localhost:8000
 Default module at: http://localhost:8080
 
+Arrêter le serveur local : Ctrl-Pause
+
+Voir la doc google
+https://cloud.google.com/appengine/docs/standard/python/tools/using-local-server
+
+
+-- ----------------------------------------
+-- Deploiement sur gCloud
+-- ----------------------------------------
 
 > gcloud app deploy				    déploie le webService sur Google Cloud
 > gcloud app logs tail -s default	affiche les logs du webService

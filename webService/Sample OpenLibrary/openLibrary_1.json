@@ -1,0 +1,64 @@
+{
+	"identifiers": {
+		"librarything": [
+			"3206242"
+		],
+		"goodreads": [
+			"838640"
+		]
+	},
+	"latest_revision": 9,
+	"source_records": [
+		"marc:marc_university_of_toronto/uoft.marc:5337624185:719"
+	],
+	"title": "Bilbo le hobbit",
+	"languages": [
+		{
+			"key": "/languages/fre"
+		}
+	],
+	"publish_country": "fr ",
+	"by_statement": "J.R.R. Tolkien ; translated from English by Francis Ledoux.",
+	"type": {
+		"key": "/type/edition"
+	},
+	"revision": 9,
+	"publishers": [
+		"Le livre de poche"
+	],
+	"last_modified": {
+		"type": "/type/datetime",
+		"value": "2011-11-22T01:07:05.559645"
+	},
+	"key": "/books/OL22735149M",
+	"authors": [
+		{
+			"key": "/authors/OL26320A"
+		}
+	],
+	"publish_places": [
+		"Paris, France"
+	],
+	"pagination": "371 p.",
+	"created": {
+		"type": "/type/datetime",
+		"value": "2008-12-20T01:12:22.193617"
+	},
+	"dewey_decimal_class": [
+		"Fic."
+	],
+	"notes": {
+		"type": "/type/text",
+		"value": "Translation of : The Hobbit.\n\n\"Texte intégral\"--Cover."
+	},
+	"number_of_pages": 371,
+	"isbn_10": [
+		"2253049417"
+	],
+	"publish_date": "1989",
+	"works": [
+		{
+			"key": "/works/OL262758W"
+		}
+	]
+}
