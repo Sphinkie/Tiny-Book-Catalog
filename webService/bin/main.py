@@ -131,6 +131,10 @@ class StoreAValue(webapp.RequestHandler):
 		<p>Examples: <br/>
 			9782253121206 create<br/>
 			9782707322210 create<br/>
+			9782859406370<br/>
+			9782070612888<br/>
+			9782253049418 Pas de resumé<br/>
+			9780345339713 Résumé en coding inconnu<br/>
 		</p>
 		</body></html>''')
 

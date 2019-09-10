@@ -2,6 +2,7 @@
 # coding: UTF-8
 # ==================================================================
 # Ce module retourne des valeurs pour un livre, issues de OpenLibrary
+# Voir la description de l'API : https://openlibrary.org/developers/api
 # ------------------------------------------------------------------
 # 08/09/2019 |    | DDL | Version initiale
 # ==================================================================
@@ -48,45 +49,83 @@
 
 
 import logging
-from google.appengine.api import urlfetch
 from django.utils import simplejson as json
-
+import urllib2
 
 # ------------------------------------------------------------------------------
+# Demande des infos completes sur le livre
 # ------------------------------------------------------------------------------
 def getInfo(isbn):
 	data = dict()
-	url = "https://openlibrary.org/api/books?bibkeys=ISBN:"+str(isbn)
+	data_dico = dict()
+	url_json = "https://openlibrary.org/api/books?bibkeys=ISBN:"+str(isbn)+"&format=json&jscmd=data"
 	try:
-		result = urlfetch.fetch(url)
-		if result.status_code == 200:
-			contents = result.content
-			logging.debug('%s '%(contents))
-		else:
-			print("Error: " + str(result.status_code))
-			return data
-	except urlfetch.InvalidURLError:
-		print("URL is an empty or invalid string")
-	except urlfetch.DownloadError:
-		print("<html>Server cannot be contacted</html>")
+		result = urllib2.urlopen(url_json)
+		contents = result.read()
+		logging.debug('%s '%(contents))
+	except urllib2.URLError:
+		logging.exception("Exception fetching url %s"%url_json)
+		return data
 	'''
-	print("<html>")
-	print(str(url)+"<br/>")
+	print("<html>Debug:<br/>")
+	print(str(url_json)+"<br/>")
 	print(str(contents)+"<br/>")
 	print("</html>")
 	'''
+	# Analyse des data recues
+	dico = json.loads(contents)
+	if len(dico)>0:
+		if "ISBN:"+isbn in dico.keys():
+			data_dico = dico["ISBN:"+isbn]
+#			data["publisher"] = dico["publishers"][0]
+#			info_url = dico["ISBN:"+isbn]["info_url"]
+#			getBookInfo(info_url, data)
+		if "publishers"   in data_dico.keys(): data["publisher"] = data_dico["publishers"][0]["name"]
+		'''
+		if "thumbnail_url" in dico["ISBN:"+isbn].keys():
+			thumbnail_url = dico["ISBN:"+isbn]["thumbnail_url"]
+			getCoverInfo(thumbnail_url, data)
+		if "title"        in dico.keys(): data["title"] = dico["title"]
+		if "publish_date" in dico.keys(): data["publishedDate"] = dico["publish_date"][-4:]
+		if "languages"    in dico.keys(): data["language"] = str(dico["languages"][0]["key"]).split("/")[2]
+		if "description"  in dico.keys(): data["description"] = dico["description"]["value"]
+		if "authors"      in dico.keys(): 
+			author_url = dico["authors"][0]["key"]
+			getAuthorInfo(author_url, data)	return data
+		'''
+		data["description"] = u"sans"
+
+# TODO 1 traiter data
+
+# TODO 2: encode pb sur la description : soit regler au niveu de textproperty soit try/catch (GOOGLE API)
+
+# TODO 3: faire marcher le logging
+	
+# ------------------------------------------------------------------------------
+# Demande des infos réduites sur le livre
+# ------------------------------------------------------------------------------
+def getInfoShort(isbn):
+	data = dict()
+	url_json = "https://openlibrary.org/api/books?bibkeys=ISBN:"+str(isbn)+"&format=json"
+	try:
+		result = urllib2.urlopen(url_json)
+		contents = result.read()
+		logging.debug('%s '%(contents))
+	except urllib2.URLError:
+		logging.exception("Exception fetching url %s"%url_json)
+		print("Error: " + str(result.status_code))
+		return data
 	# -----------------------------------------------------------
 	# contents : var_OLBookInfo = {flux json};
 	# -----------------------------------------------------------
-	(variable, flux_jason) = contents.split("=")
-	# on enlève le ; final
-	dico = json.loads(flux_jason[0:-1])
+	dico = json.loads(contents)
 	if len(dico)>0:
-		info_url = dico["ISBN:"+isbn]["info_url"]
-		thumbnail_url = dico["ISBN:"+isbn]["thumbnail_url"]
-		data["description"] = info_url
-		getBookInfo(info_url, data)
-		getCoverInfo(thumbnail_url, data)
+		if "info_url" in dico["ISBN:"+isbn].keys(): 
+			info_url = dico["ISBN:"+isbn]["info_url"]
+			getBookInfo(info_url, data)
+		if "thumbnail_url" in dico["ISBN:"+isbn].keys():
+			thumbnail_url = dico["ISBN:"+isbn]["thumbnail_url"]
+			getCoverInfo(thumbnail_url, data)
 	return data
 
 # ------------------------------------------------------------------------------
@@ -96,17 +135,23 @@ def getBookInfo(url, data):
 	# url est du type: https://openlibrary.org/books/OL8984046M/Les_perroquets
 	url_path = url.split("/")
 	url_json = url_path[0]+"//"+url_path[2]+"/"+url_path[3]+"/"+url_path[4]+".json"
-	result = urlfetch.fetch(url_json)
-	contents = result.content
-	logging.debug('%s '%(contents))
+	try:
+		result = urllib2.urlopen(url_json)
+		contents = result.read()
+		logging.debug('%s '%(contents))
+	except urllib2.URLError:
+		logging.exception("Exception fetching url %s"%url_json)
+		return
 	dico = json.loads(contents)
 	if len(dico)>0:
-		data["title"] = dico["title"]
-		data["publisher"] = dico["publishers"][0]
-		data["publishedDate"] = dico["publish_date"][-4:]
-		data["language"] = str(dico["languages"][0]["key"]).split("/")[2]
-		author_url = dico["authors"][0]["key"]
-		getAuthorInfo(author_url, data)
+		if "title"        in dico.keys(): data["title"] = dico["title"]
+		if "publishers"   in dico.keys(): data["publisher"] = dico["publishers"][0]
+		if "publish_date" in dico.keys(): data["publishedDate"] = dico["publish_date"][-4:]
+		if "languages"    in dico.keys(): data["language"] = str(dico["languages"][0]["key"]).split("/")[2]
+		if "description"  in dico.keys(): data["description"] = dico["description"]["value"]
+		if "authors"      in dico.keys(): 
+			author_url = dico["authors"][0]["key"]
+			getAuthorInfo(author_url, data)
 
 # ------------------------------------------------------------------------------
 # Extraction des informations de l'auteur
@@ -114,9 +159,13 @@ def getBookInfo(url, data):
 def getAuthorInfo(url, data):
 	# url est du type: /authors/OL1980306A
 	url_json=str("https://openlibrary.org"+url+".json")
-	result = urlfetch.fetch(url_json)
-	contents = result.content
-	logging.debug('%s '%(contents))
+	try:
+		result = urllib2.urlopen(url_json)
+		contents = result.read()
+		logging.debug('%s '%(contents))
+	except urllib2.URLError:
+		logging.exception("Exception fetching url %s"%url_json)
+		return
 	dico = json.loads(contents)
 	if len(dico)>0:
 		data["author"] = dico["name"]

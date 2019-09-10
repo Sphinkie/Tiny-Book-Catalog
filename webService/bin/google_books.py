@@ -52,8 +52,8 @@ def getInfo(isbn):
 			data["language"]	 = dico['items'][0]['volumeInfo'].get("language","")
 			# Description du livre (cad le résumé)
 			if "searchInfo" in dico['items'][0].keys(): 
-				data["description"] = dico['items'][0]['searchInfo'].get("textSnippet","Pas de résumé")
-			data["description"] = dico['items'][0]['volumeInfo'].get("description","Pas de résumé")
+				data["description"] = dico['items'][0]['searchInfo'].get("textSnippet",u"Pas de résumé")	# unicode
+			data["description"] = dico['items'][0]['volumeInfo'].get("description",u"Pas de résumé")		# unicode
 			# Couverture du livre
 			picture_number    = len(data["title"])%5		# valeurs possibles: 0-1-2-3-4
 			data["picture"] = "old-book-"+str(picture_number)+".jpg"

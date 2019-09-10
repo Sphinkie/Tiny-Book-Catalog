@@ -16,11 +16,12 @@ from google.appengine.ext import db
 from google.appengine.ext.db import Key
 
 
-### ===========================================================================================
-### Creation de la table StoredData
-### Defining a column as a StringProperty limits individual values to 500 characters.
-### To remove this limit, use a TextProperty instead.
-### ===========================================================================================
+# -------------------------------------------------------------------------------
+# Creation de la table StoredData
+# Defining a column as a StringProperty limits individual values to 1500 characters.
+# To remove this limit, use a TextProperty instead.
+# StringProperty supporte (multiline=True)
+# -------------------------------------------------------------------------------
 class StoredData(db.Model):
 	tag				= db.StringProperty()		# on y stocke le code ISBN
 	owner			= db.StringProperty()		# on y stocke le OWNER envoyé par le smartphone
@@ -35,28 +36,21 @@ class StoredData(db.Model):
 	date			= db.DateTimeProperty(required=True, auto_now=True)	# Creation date
 
 
-### =============================================================================
-
-# ---------------------------------------------------------------
-# Note sur GqlQuery: 
-# .get() retourne le premier élement trouvé
-# .run() retourne un objet itérable avec tous les élements trouvés (recommandé)
-# .fetch() retourne la liste tous les élements trouvés (lenteur)
-# ---------------------------------------------------------------
+# -------------------------------------------------------------------------------
+# Classe pour gérer le catalogue de livres
+# -------------------------------------------------------------------------------
 class Catalog():
+
+	# -------------------------------------------------------------------------------
+	# Note sur GqlQuery: 
+	# .get() retourne le premier élement trouvé
+	# .run() retourne un objet itérable avec tous les élements trouvés (recommandé)
+	# .fetch() retourne la liste tous les élements trouvés (lenteur)
+# -------------------------------------------------------------------------------
 
 	def __init__(self): 
 		pass
 
-	# ----------------------------------------------------------------------------
-	# S'il y a deja une Entry dans la base avec ce tag ISBN: on met à jour le owner
-	# ----------------------------------------------------------------------------
-	def setBookOwner(self, isbn, owner):
-		entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", isbn).get()
-		if entry:
-			entry.owner = owner
-			entry.put()
-	
 	# ----------------------------------------------------------------------------
 	# Ajout d'un nouveau livre
 	# ----------------------------------------------------------------------------
@@ -69,14 +63,27 @@ class Catalog():
 			entry.put()
 			book_data = standard_books.getInfo(isbn)	# on remplit avec des infos par defaut
 			self.storeData(entry, book_data)
-#			book_data = google_books.getInfo(isbn)		# on complète avec des infos de Google
-			book_data = open_books.getInfo(isbn)
+			book_data = google_books.getInfo(isbn)		# on complète avec des infos de Google
+			self.storeData(entry, book_data)
+			book_data = open_books.getInfo(isbn)		# on complète avec des infos de OpenLibray
 			self.storeData(entry, book_data)
 		else:
 			# Si elle existe, on met à jour les infos
-#			book_data = google_books.getInfo(isbn)
-			book_data = open_books.getInfo(isbn)
+			book_data = standard_books.getInfo(isbn)	# on remplit avec des infos par defaut
 			self.storeData(entry, book_data)
+			book_data = google_books.getInfo(isbn)		# on complète avec des infos de Google
+			self.storeData(entry, book_data)
+			book_data = open_books.getInfo(isbn)		# on complète avec des infos de OpenLibray
+			self.storeData(entry, book_data)
+
+	# ----------------------------------------------------------------------------
+	# Positionne le OWNER d'un livre (livre existant)
+	# ----------------------------------------------------------------------------
+	def setBookOwner(self, isbn, owner):
+		entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", isbn).get()
+		if entry:
+			entry.owner = owner
+			entry.put()
 
 	# ----------------------------------------------------------------------------
 	# Suppression d'un livre  (ISBN deleted by User)
@@ -103,7 +110,7 @@ class Catalog():
 			entry.put()
 
 	# -------------------------------------------------------------------------------
-	# on renvoie la liste complete des ISBN
+	# Renvoie la liste complete des ISBN
 	# -------------------------------------------------------------------------------
 	def getISBNList(self):
 		query = db.GqlQuery("SELECT tag FROM StoredData")
@@ -114,7 +121,7 @@ class Catalog():
 		return responselist
 		
 	# -------------------------------------------------------------------------------
-	# Liste complete des USERS
+	# REnvoie la liste complete des USERS
 	# -------------------------------------------------------------------------------
 	def getUserList(self):
 		query = db.GqlQuery("SELECT DISTINCT owner FROM StoredData")
@@ -124,7 +131,7 @@ class Catalog():
 		return responselist
 		
 	# -------------------------------------------------------------------------------
-	# "user:toto"	Liste des ISBN du user TOTO
+	# "user:toto"	Rebnoir la liste des ISBN du user TOTO
 	# -------------------------------------------------------------------------------
 	def getBookListOwnedBy(self, user):
 		query = db.GqlQuery("SELECT * FROM StoredData WHERE owner = :1", user)
@@ -134,7 +141,7 @@ class Catalog():
 		return responselist
 		
 	# -------------------------------------------------------------------------------
-	# Liste des ISBN demandés à TOTO
+	# Renvoie la liste des ISBN demandés au User
 	# -------------------------------------------------------------------------------
 	def getBookListRequestedTo(self, user):
 		query = db.GqlQuery("SELECT * FROM StoredData WHERE owner = :1", user)
@@ -147,7 +154,7 @@ class Catalog():
 		return responselist
 		
 	# -------------------------------------------------------------------------------
-	# Liste des ISBN demandés par TOTO
+	# Renvoie la liste  des ISBN demandés par le User
 	# -------------------------------------------------------------------------------
 	def getBookListRequestedBy(self, user):
 		query = db.GqlQuery("SELECT * FROM StoredData WHERE requirer = :1", user)
@@ -157,7 +164,7 @@ class Catalog():
 		return responselist
 		
 	# -------------------------------------------------------------------------------
-	# Renvoie les infos sur le livre 
+	# Renvoie les infos détaillées du livre 
 	# -------------------------------------------------------------------------------
 	def getBookInfo(self, isbn):
 		entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", isbn).get() 
@@ -229,7 +236,7 @@ class Catalog():
 		return [requirer,owner]
 
 	# -------------------------------------------------------------------------------
-	# delete entry
+	# Delete entry
 	# -------------------------------------------------------------------------------
 	def deleteKey(self, entry_key):
 		key = db.Key(entry_key)
@@ -242,7 +249,7 @@ class Catalog():
 		if db.get(key):	db.delete(key)
 
 	# ------------------------------------------------------------------------------
-	# Supprime tous les items sans owner
+	# Supprime tous les livres sans owner
 	# ------------------------------------------------------------------------------
 	def cleanup(self):
 		entries = db.GqlQuery("SELECT * FROM StoredData WHERE owner = NULL")
@@ -260,20 +267,14 @@ class Catalog():
 		
 	# ------------------------------------------------------------------------------
 	# On stocke les valeurs en BDD
-	# Note: On peut aussi stocker dans la base de la façon suivante:
-	# 	entry.update({'title' : dico['items'][0]['volumeInfo'].get("title",""),
-	#				  'author': dico['items'][0]['volumeInfo'].get("authors",["null"])[0],
-	# 				  'number': 4,
-	#				  'bool'  : False,
-	#				  'text'  : "some text"})
 	# ------------------------------------------------------------------------------
 	def storeData(self , entry, book_data):
-		if "title"         in book_data: entry.title=book_data.get("title")
-		if "author"        in book_data: entry.author=book_data.get("author")
-		if "picture"       in book_data: entry.thumbnail=book_data.get("picture")
-		if "language"      in book_data: entry.language=book_data.get("language")
-		if "publisher"     in book_data: entry.publisher=book_data.get("publisher")
-		if "description"   in book_data: entry.description=book_data.get("description")
-		if "publishedDate" in book_data: entry.publishedDate=book_data.get("publishedDate")
+		if "title"         in book_data : entry.title=book_data.get("title")
+		if "author"        in book_data : entry.author=book_data.get("author")
+		if "picture"       in book_data : entry.thumbnail=book_data.get("picture")
+		if "language"      in book_data : entry.language=book_data.get("language")
+		if "publisher"     in book_data : entry.publisher=book_data.get("publisher")
+		if "description"   in book_data : entry.description=book_data.get("description")
+		if "publishedDate" in book_data : entry.publishedDate=book_data.get("publishedDate")
 		entry.put()
 		

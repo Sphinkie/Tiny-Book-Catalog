@@ -13,7 +13,7 @@
 def getInfo(isbn):
 	data = dict()
 	data["title"]  	= "Code ISBN: %s"%(isbn)
-	data["author"]	= "Livre non reconnu"
+	data["author"]	= "Inconnu"
 	data["description"]	= u"Pas de résumé."		# on force en unicode, à cause des accents, pour pouvoir l'affecter à une entry.
 	data["picture"]	= "pages.jpg"
 	return data
