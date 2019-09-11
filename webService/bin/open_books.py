@@ -49,8 +49,8 @@
 
 
 import logging
-from django.utils import simplejson as json
 import urllib2
+from django.utils import simplejson as json
 
 # ------------------------------------------------------------------------------
 # Demande des infos sur le livre
@@ -62,9 +62,9 @@ def getInfo(isbn):
 	try:
 		result = urllib2.urlopen(url_json)
 		contents = result.read()
-		logging.debug('%s '%(contents))
+		logging.debug('Received from openlibrary: %s '%(contents))
 	except urllib2.URLError:
-		logging.exception("Exception fetching url %s"%url_json)
+		logging.exception("Exception while fetching url %s"%url_json)
 		return data
 	# Analyse des data recues
 	dico = json.loads(contents)
@@ -76,7 +76,6 @@ def getInfo(isbn):
 			if "cover"        in data_dico.keys(): data["picture"] = data_dico["cover"]["medium"]
 			if "authors"      in data_dico.keys(): data["author"]= data_dico["authors"][0]["name"]
 			if "title"        in data_dico.keys(): data["title"] = data_dico["title"]
-
 	return data
 
 # ------------------------------------------------------------------------------
@@ -88,9 +87,9 @@ def getInfoFull(isbn):
 	try:
 		result = urllib2.urlopen(url_json)
 		contents = result.read()
-		logging.debug('%s '%(contents))
+		logging.debug('Received from openlibrary: %s '%(contents))
 	except urllib2.URLError:
-		logging.exception("Exception fetching url %s"%url_json)
+		logging.exception("Exception while fetching url %s"%url_json)
 		logging.error("Error: " + str(result.status_code))
 		return data
 	# -----------------------------------------------------------
@@ -117,9 +116,9 @@ def getTitleInfo(url, data):
 	try:
 		result = urllib2.urlopen(url_json)
 		contents = result.read()
-		logging.debug('%s '%(contents))
+		logging.debug('Received from openlibrary: %s '%(contents))
 	except urllib2.URLError:
-		logging.exception("Exception fetching url %s"%url_json)
+		logging.exception("Exception while fetching url %s"%url_json)
 		return
 	dico = json.loads(contents)
 	if len(dico)>0:
@@ -141,9 +140,9 @@ def getAuthorInfo(url, data):
 	try:
 		result = urllib2.urlopen(url_json)
 		contents = result.read()
-		logging.debug('%s '%(contents))
+		logging.debug('Received from openlibrary: %s '%(contents))
 	except urllib2.URLError:
-		logging.exception("Exception fetching url %s"%url_json)
+		logging.exception("Exception while fetching url %s"%url_json)
 		return
 	dico = json.loads(contents)
 	if len(dico)>0:

@@ -7,7 +7,8 @@
 # ==================================================================
 
 import logging
-from google.appengine.api import urlfetch
+import urllib2
+#from google.appengine.api import urlfetch
 from django.utils import simplejson as json
 
 # -----------------------------------------------------------------------------------------------------------
@@ -20,18 +21,11 @@ def getInfo(isbn):
 	data = dict()
 	url = "https://www.googleapis.com/books/v1/volumes?q=isbn:"+str(isbn)+"&country=US"
 	try:
-		result = urlfetch.fetch(url)
-		if result.status_code == 200:
-			contents = result.content
-			logging.debug('%s '%(contents))
-		else:
-			logging.error("Error: " + str(result.status_code))
-			return data
-	except urlfetch.InvalidURLError:
-		logging.exception("URL is an empty or invalid string")
-		return data
-	except urlfetch.DownloadError:
-		logging.exception("<html>Server cannot be contacted</html>")
+		result = urllib2.urlopen(url)
+		contents = result.read()
+		logging.debug('recevied from googleapi: %s '%(contents))
+	except urllib2.URLError:
+		logging.exception("Exception while fetching url %s"%url)
 		return data
 	'''
 	print("<html>")
