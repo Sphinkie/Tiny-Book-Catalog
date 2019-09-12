@@ -27,12 +27,138 @@ class MainPage(webapp.RequestHandler):
 	# Appelé lorsque l'on accède à la page principale
 	# ---------------------------------------------------------------
 	def get(self):
-		write_page_header(self)
-		write_page_intro_message(self) 	# affiche le message d'intro
-		write_stored_data(self)			# affiche le contenu de la base
-		write_page_footer(self)
+		self.write_page_header()
+		self.write_page_intro_message() 	# affiche le message d'intro
+		#self.write_available_operations()
+		self.write_stored_data()				# affiche le contenu de la base
+		self.write_page_footer()
 
+	# ------------------------------------------------------------------------------
+	# Generate the page header
+	# ------------------------------------------------------------------------------
+	def write_page_header(self):
+		self.response.headers['Content-Type'] = 'text/html'
+		self.response.out.write('''
+			<html>
+			<head>
+				<style type="text/css">
+					body {margin-left: 5% ; margin-right: 5%; margin-top: 0.5in; font-family: verdana, arial,"trebuchet ms", helvetica, sans-serif;}
+					ul {list-style: disc;}
+				</style>
+				<title>Tiny Book Catalog</title>
+			</head>
+			<body>''')
+			
+	# ------------------------------------------------------------------------------
+	# Generate the page Intro Message
+	# ------------------------------------------------------------------------------
+	def write_page_intro_message(self):
+		self.response.out.write('''<h2>Tiny-Book-Catalog (App Inventor for Android using TinyWebDB component)</h2>''')
+		self.response.out.write('''
+		<table border=0>
+		<tr valign="top">
+		<td><image src="images/customLogo.gif" width="200" hspace="10"></td>
+		<td>
+			<p>
+			This web service is designed to work with <b>App Inventor for Android</b> and the TinyWebDB component. </br>
+			The end-goal of this service is to communicate with a mobile app created with App Inventor.
+			</p>
+			<p>
+			This page is an interface to the web service to help programmers with debugging. </br>
+			You can invoke the get and store operations by hand, view the existing entries, and also delete individual entries.
+			</p>
+		</td>
+		</tr>
+		</table>''')	
+		
+	# ------------------------------------------------------------------------------
+	# Affiche les informations relatives à l'API
+	# ------------------------------------------------------------------------------
+	def write_available_operations(self):
+		self.response.out.write('''
+		<p>Available calls:<br/></br>
+		<a href="/storeavalue">/storeavalue</a>: Stores data for a given ISBN number (<b>tag</b>) and a command (<b>value</b>).<br/>
+		<ul>
+			<li>value <b>"create:"</b>: Create an entry in the database for this book.</li>
+			<li>value <b>"owner:john"</b>: Set the owner of the book.</li>
+			<li>value <b>"deletedby:john"</b>: Remove the book from the database.</li>
+			<li>value <b>"requestedby:bob"</b>: Set the requirer of the book.</li>
+		</ul>
+		<a href="/getvalue">/getvalue</a>: Retrieves a list of information corresponding to the request (<b>tag</b>).<br/>
+		<ul>
+			<li>tag <b>"isbn:*"</b>: returns the list of all isbn in database.</li>
+			<li>tag <b>"pict:123456789[:requestid]</b>": Returns the picture url of the book (isbn). <i>requestid</i> is optionnal.</li>
+			<li>tag <b>"desc:123456789"</b>: Returns the description (abstract) of the book (isbn).</li>
+			<li>tag <b>"user:*"</b>: Returns the list of all known owners.</li>
+			<li>tag <b>"user:john"</b>: Returns the list of all isbn which have "john" for owner.</li>
+			<li>tag <b>"isbn:123456789[:requestid]"</b>: Returns an information list about the book. <i>requestid</i> is optionnal.</li>
+			This list contains: [title, author, publisher, publication date, thumbnail url]<br/>
+			Returns empty strings if no value is stored.</br>
+		</ul><br/>''')
 
+	# ------------------------------------------------------------------------------
+	# Generate the page footer
+	# ------------------------------------------------------------------------------
+	def write_page_footer(self):
+		self.response.out.write('''</body></html>''')
+
+	# ------------------------------------------------------------------------------
+	# Show the tags and values as a table.
+	# ------------------------------------------------------------------------------
+	def write_stored_data(self):
+		self.response.out.write('''<p><table border=1>''')	# debut du tableau
+		# Première ligne (entêtes)
+		self.response.out.write('''
+			<tr>
+				 <th>Tag</th>
+				 <th>Owner</th>
+				 <th>Title</th>
+				 <th>Author</th>
+				 <th>PublishedDate</th>
+				 <th>Description</th>
+				 <th>Image</th>
+				 <th>Created (GMT)</th>
+				 <th>Action</th>
+			</tr>''')
+		entries = cat.getAllItems()
+		# Lignes suivantes
+		for e in entries:
+			entry_key_string = str(e.key())
+			self.response.out.write('''<tr>''')
+			# Affiche le code ISBN
+			self.response.out.write('''<td>%s</td>''' % escape(e.tag))
+			# Affiche le Owner
+			if e.owner: self.response.out.write('''<td>%s</td>''' % escape(e.owner))
+			else: self.response.out.write('''<td></td>''')
+			# Affiche le Titre
+			if e.title: self.response.out.write('''<td>%s</td>''' % escape(e.title))
+			else: self.response.out.write('''<td></td>''')
+			# Affiche l'auteur
+			if e.author: self.response.out.write('''<td>%s</td>''' % escape(e.author))
+			else: self.response.out.write('''<td></td>''')
+			# Affiche l'année de publication
+			if e.publishedDate: self.response.out.write('''<td>%s</td>''' % escape(e.publishedDate))
+			else: self.response.out.write('''<td></td>''')
+			# Affiche le résumé
+			if e.description: self.response.out.write('''<td>%s</td>''' % escape(e.description))
+			else: self.response.out.write('''<td></td>''')
+			# Affiche le lien vers l'image
+			if e.thumbnail: self.response.out.write('''<td><a href="%s">link</a></td>''' % escape(e.thumbnail))
+			else: self.response.out.write('''<td></td>''')
+			# Affiche la date de création en base
+			self.response.out.write('''<td><font size="-1">%s</font></td>''' % e.date.ctime())
+			# Affiche un bouton DELETE
+			self.response.out.write('''
+				<td><form action="/deleteentry" method="post" enctype=application/x-www-form-urlencoded>
+					<input type="hidden" name="entry_key_string" value="%s">
+					<input type="hidden" name="tag" value="%s">
+					<input type="hidden" name="fmt" value="html">
+					<input type="submit" style="background-color: red" value="Delete"></form>
+				</td><br/>''' %(entry_key_string, escape(e.tag)))
+			self.response.out.write('''</tr>''')
+		self.response.out.write('''</table>''')	# fin du tableau
+
+		
 ### =============================================================================
 ### Tache de cleanup (appelé par Cron)
 ### =============================================================================
@@ -263,124 +389,6 @@ class DeleteEntry(webapp.RequestHandler):
 
 
 ### =============================================================================
-### Procedures used to display the main page
-### =============================================================================
-
-# ------------------------------------------------------------------------------
-# Show the API
-# ------------------------------------------------------------------------------
-def write_available_operations(self):
-	self.response.out.write('''
-		<p>Available calls:\n
-		<ul>
-		<li><a href="/storeavalue">/storeavalue</a>: Stores a data, given a tag (isbn) and a value (command).</li>
-		<li><b>value "create:"</b>: Create an entry in the database for this book.</li>
-		<li><b>value "owner:john"</b>: Set the owner of the book.</li>
-		<li><b>value "deletedby:john"</b>: Remove the book from the database.</li>
-		<li><b>value "requestedby:bob"</b>: Set the requirer of the book.</li>
-		</br>
-		<li><a href="/getvalue">/getvalue</a>: Retrieves a list of information stored under a given tag (isbn).</br>
-		<li><b>tag "isbn:*"</b>: returns the list of all isbn in database.</li>
-		<li><b>tag "isbn:123456789[:requestid]"</b>: Returns an information list about the book. <i>requestid</i> is optionnal.</li>
-		This list contains: [title, author, publisher, publication date, thumbnail url]</br>
-		Returns empty strings if no value is stored.</br>
-		<li><b>tag "pict:123456789[:requestid]</b>": Returns the picture url of the book (isbn). <i>requestid</i> is optionnal.</li>
-		<li><b>tag "desc:123456789"</b>: Returns the description (abstract) of the book (isbn).</li>
-		<li><b>tag "user:*"</b>: Returns the list of all known owners.</li>
-		<li><b>tag "user:john"</b>: Returns the list of all isbn which have "john" for owner.</li>
-		</ul>''')
-
-# ------------------------------------------------------------------------------
-# Generate the page header
-# ------------------------------------------------------------------------------
-def write_page_header(self):
-	self.response.headers['Content-Type'] = 'text/html'
-	self.response.out.write('''
-		 <html>
-			<head>
-				<style type="text/css">
-					body {margin-left: 5% ; margin-right: 5%; margin-top: 0.5in; font-family: verdana, arial,"trebuchet ms", helvetica, sans-serif;}
-					ul {list-style: disc;}
-				</style>
-				<title>Tiny Book Catalog</title>
-			</head>
-			<body>''')
-	
-# ------------------------------------------------------------------------------
-# Generate the page footer
-# ------------------------------------------------------------------------------
-def write_page_footer(self):
-	self.response.out.write('''</body></html>''')
-	
-# ------------------------------------------------------------------------------
-# Generate the page Intro Message
-# ------------------------------------------------------------------------------
-def write_page_intro_message(self):
-	self.response.out.write('''<h2>Tiny-Book-Catalog (App Inventor for Android using TinyWebDB component)</h2>''')
-	self.response.out.write('''
-		<table border=0>
-		<tr valign="top">
-		<td><image src="images/customLogo.gif" width="200" hspace="10"></td>
-		<td>
-			<p>
-			This web service is designed to work with <b>App Inventor for Android</b> and the TinyWebDB component. </br>
-			The end-goal of this service is to communicate with a mobile app created with App Inventor.
-			</p>
-			<p>
-			This page is an interface to the web service to help programmers with debugging. </br>
-			You can invoke the get and store operations by hand, view the existing entries, and also delete individual entries.
-			</p>
-		</td>
-		</tr>
-		</table>''')
-	
-# ------------------------------------------------------------------------------
-# Show the tags and values as a table.
-# ------------------------------------------------------------------------------
-def write_stored_data(self):
-	self.response.out.write('''
-		<p><table border=1>
-			<tr>
-				 <th>Tag</th>
-				 <th>Owner</th>
-				 <th>Title</th>
-				 <th>Author</th>
-				 <th>PublishedDate</th>
-				 <th>Description</th>
-				 <th>Image</th>
-				 <th>Created (GMT)</th>
-			</tr>''')
-	entries = cat.getAllItems()
-	for e in entries:
-		entry_key_string = str(e.key())
-		self.response.out.write('<tr>')
-		self.response.out.write('<td>%s</td>' % escape(e.tag))
-		if e.owner: self.response.out.write('<td>%s</td>' % escape(e.owner))
-		else: self.response.out.write('<td></td>')
-		if e.title: self.response.out.write('<td>%s</td>' % escape(e.title))
-		else: self.response.out.write('<td></td>')
-		if e.author: self.response.out.write('<td>%s</td>' % escape(e.author))
-		else: self.response.out.write('<td></td>')
-		if e.publishedDate: self.response.out.write('<td>%s</td>' % escape(e.publishedDate))
-		else: self.response.out.write('<td></td>')
-		if e.description: self.response.out.write('<td>%s</td>' % escape(e.description))
-		else: self.response.out.write('<td></td>')
-		if e.thumbnail: self.response.out.write('<td><a href="%s">link</a></td>' % escape(e.thumbnail))
-		else: self.response.out.write('<td></td>')
-		self.response.out.write('<td><font size="-1">%s</font></td>\n' % e.date.ctime())
-		self.response.out.write('''
-			<td><form action="/deleteentry" method="post" enctype=application/x-www-form-urlencoded>
-				<input type="hidden" name="entry_key_string" value="%s">
-				<input type="hidden" name="tag" value="%s">
-				<input type="hidden" name="fmt" value="html">
-				<input type="submit" style="background-color: red" value="Delete"></form>
-			</td>\n''' %(entry_key_string, escape(e.tag)))
-		self.response.out.write('</tr>')
-	self.response.out.write('</table>')
-
-
-
-### =============================================================================
 ### Utility procedures for generating the output
 ### =============================================================================
 
@@ -393,13 +401,12 @@ def WritePhoneOrWeb(handler, writer):
 	if handler.request.get('fmt') == "html":
 		WritePhoneOrWebToWeb(handler, writer)
 	else:
-		handler.response.headers['Content-Type'] = 'application/jsonrequest'
-		writer()
+		WriteToPhone(handler,writer)
 
 # ------------------------------------------------------------------------------
-# Result when writing to the Web
+# Write to a web browser
 # ------------------------------------------------------------------------------
-def WritePhoneOrWebToWeb(handler, writer):
+def WriteToWeb(handler, writer):
 	handler.response.headers['Content-Type'] = 'text/html'
 	handler.response.out.write('''<html><body>''')
 	handler.response.out.write('''<em>The server will send this to the component:</em><p/>''')
@@ -408,24 +415,22 @@ def WritePhoneOrWebToWeb(handler, writer):
 	handler.response.out.write('''</body></html>''')
 
 # ------------------------------------------------------------------------------
-# Write to the Web (without checking fmt)
+# Write to the Smartphone
 # ------------------------------------------------------------------------------
-def WriteToWeb(handler, writer):
-	handler.response.headers['Content-Type'] = 'text/html'
-	handler.response.out.write('''<html><body>''')
+def WriteToPhone(handler, writer):
+	handler.response.headers['Content-Type'] = 'application/jsonrequest'
 	writer()
-	handler.response.out.write('''<p><a href="/"><i>Return to Main Page</i></a>''')
-	handler.response.out.write('''</body></html>''')
-
 
 # ------------------------------------------------------------------------------
 # Assign a class to each URL
 # ------------------------------------------------------------------------------
-application = webapp.WSGIApplication([('/',              MainPage),
-									  ('/storeavalue',   StoreAValue),
-									  ('/deleteentry',   DeleteEntry),
-									  ('/getvalue',      GetValue),
-									  ('/tasks/cleanup', Cleanup)  ],
+application = webapp.WSGIApplication([
+										('/',              MainPage),
+										('/storeavalue',   StoreAValue),
+										('/deleteentry',   DeleteEntry),
+										('/getvalue',      GetValue),
+										('/tasks/cleanup', Cleanup)  
+									],
 									debug=True)
 
 # ------------------------------------------------------------------------------
