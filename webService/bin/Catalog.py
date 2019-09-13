@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 # coding: UTF-8
 # ==================================================================
 # Ce module gère un catalogue de livres.
@@ -39,17 +39,14 @@ class StoredData(db.Model):
 # -------------------------------------------------------------------------------
 # Classe pour gérer le catalogue de livres
 # -------------------------------------------------------------------------------
-class Catalog():
+class catalog():
 
 	# -------------------------------------------------------------------------------
 	# Note sur GqlQuery: 
 	# .get() retourne le premier élement trouvé
 	# .run() retourne un objet itérable avec tous les élements trouvés (recommandé)
 	# .fetch() retourne la liste tous les élements trouvés (lenteur)
-# -------------------------------------------------------------------------------
-
-	def __init__(self): 
-		pass
+	# -------------------------------------------------------------------------------
 
 	# ----------------------------------------------------------------------------
 	# Ajout d'un nouveau livre
@@ -67,13 +64,15 @@ class Catalog():
 			self.storeData(entry, google_data)
 			open_data = open_books.getInfo(isbn)		# on complète avec des infos de OpenLibray
 			self.storeData(entry, open_data)
+			open_data = open_books.getInfoFull(isbn)	# on complète avec le résumé de OpenLibray
+			self.storeData(entry, open_data)
 		else:
 			# Si elle existe, on met à jour les infos
 			google_data = google_books.getInfo(isbn)	# on complète avec des infos de Google
 			self.storeData(entry, google_data)
 			open_data = open_books.getInfo(isbn)		# on complète avec des infos de OpenLibray
 			self.storeData(entry, open_data)
-			open_data = open_books.getInfoFull(isbn)	# on complète avec des infos de OpenLibray
+			open_data = open_books.getInfoFull(isbn)	# on complète avec le résumé de OpenLibray
 			self.storeData(entry, open_data)
 
 	# ----------------------------------------------------------------------------
@@ -86,7 +85,18 @@ class Catalog():
 			entry.put()
 
 	# ----------------------------------------------------------------------------
-	# Suppression d'un livre  (ISBN deleted by User)
+	# Réception d'une demande de livre (ISBN requested by User)
+	# ----------------------------------------------------------------------------
+	def setBookRequirer(self, isbn, user):
+		# Ce livre est-t-il bien connu en base ?
+		entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", isbn).get()
+		if entry:
+			# Si oui
+			entry.requirer = user
+			entry.put()
+
+	# ----------------------------------------------------------------------------
+	# Suppression d'un livre (ISBN deleted by User)
 	# ----------------------------------------------------------------------------
 	def removeBook(self, isbn, user):
 		# On recupère le owner du livre
@@ -98,21 +108,11 @@ class Catalog():
 				entry.put()
 				entry.delete()
 
-	# ----------------------------------------------------------------------------
-	# Réception d'une demande de livre (ISBN requested by User)
-	# ----------------------------------------------------------------------------
-	def requestBook(self, isbn, user):
-		# Ce livre est-t-il bien connu en base ?
-		entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", isbn).get()
-		if entry:
-			# Si oui
-			entry.requirer = user
-			entry.put()
-
 	# -------------------------------------------------------------------------------
 	# Renvoie la liste complete des ISBN
 	# -------------------------------------------------------------------------------
 	def getISBNList(self):
+		responselist = list()
 		query = db.GqlQuery("SELECT tag FROM StoredData")
 		results = query.run(limit=100)
 		# for item in query: # est aussi possible, car run() est implicite
@@ -124,6 +124,7 @@ class Catalog():
 	# REnvoie la liste complete des USERS
 	# -------------------------------------------------------------------------------
 	def getUserList(self):
+		responselist = list()
 		query = db.GqlQuery("SELECT DISTINCT owner FROM StoredData")
 		results = query.run(limit=100)
 		for item in results: 
@@ -134,6 +135,7 @@ class Catalog():
 	# "user:toto"	Rebnoir la liste des ISBN du user TOTO
 	# -------------------------------------------------------------------------------
 	def getBookListOwnedBy(self, user):
+		responselist = list()
 		query = db.GqlQuery("SELECT * FROM StoredData WHERE owner = :1", user)
 		results = query.run(limit=100)
 		for item in results: 
@@ -144,6 +146,7 @@ class Catalog():
 	# Renvoie la liste des ISBN demandés au User
 	# -------------------------------------------------------------------------------
 	def getBookListRequestedTo(self, user):
+		responselist = list()
 		query = db.GqlQuery("SELECT * FROM StoredData WHERE owner = :1", user)
 		results = query.run(limit=100)
 		for item in results: 
@@ -157,6 +160,7 @@ class Catalog():
 	# Renvoie la liste  des ISBN demandés par le User
 	# -------------------------------------------------------------------------------
 	def getBookListRequestedBy(self, user):
+		responselist = list()
 		query = db.GqlQuery("SELECT * FROM StoredData WHERE requirer = :1", user)
 		results = query.run(limit=100)
 		for item in results: 
@@ -184,17 +188,6 @@ class Catalog():
 			publisher = ""
 			thumbnail = ""
 			publishedDate = ""
-		'''
-		# if it is a html request, clean the variables.
-		if self.request.get('fmt') == "html":
-			if (title): title = escape(title)
-			if (owner): owner = escape(owner)
-			if (author): author = escape(author)
-			if (requirer): requirer = escape(requirer)
-			if (publisher): publisher = escape(publisher)
-			if (publishedDate): publishedDate = escape(publishedDate)
-			if (thumbnail): thumbnail = escape(thumbnail)
-		'''
 		# On remplit la liste des valeurs à retourner à l'application
 		return [title,author,publisher,publishedDate,thumbnail,requirer,owner]
 
@@ -217,7 +210,7 @@ class Catalog():
 	def getBookPicture(self, isbn):
 		entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", isbn).get() 
 		if entry:
-			picture = entry.smallThumbnail
+			picture = entry.thumbnail
 		else:
 			picture = ""
 		# On remplit la liste des valeurs à retourner à l'application

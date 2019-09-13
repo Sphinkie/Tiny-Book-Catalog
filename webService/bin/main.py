@@ -9,14 +9,14 @@
 ### ===========================================================================================
 
 import logging
-from Catalog import Catalog
+from catalog import catalog
 
 from cgi import escape	# Cette library remplace < par &lt;	> par &gt; et & par &amp;
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from django.utils import simplejson as json
 
-cat = Catalog()
+cat = catalog()
 
 ### =============================================================================
 ### Page principale
@@ -30,7 +30,7 @@ class MainPage(webapp.RequestHandler):
 		self.write_page_header()
 		self.write_page_intro_message() 	# affiche le message d'intro
 		#self.write_available_operations()
-		self.write_stored_data()				# affiche le contenu de la base
+		self.write_stored_data()			# affiche le contenu de la base
 		self.write_page_footer()
 
 	# ------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ class MainPage(webapp.RequestHandler):
 	# Show the tags and values as a table.
 	# ------------------------------------------------------------------------------
 	def write_stored_data(self):
-		self.response.out.write('''<p><table border=1>''')	# debut du tableau
+		self.response.out.write('''<table border=1>''')	# debut du tableau
 		# Première ligne (entêtes)
 		self.response.out.write('''
 			<tr>
@@ -399,7 +399,7 @@ class DeleteEntry(webapp.RequestHandler):
 # ------------------------------------------------------------------------------
 def WritePhoneOrWeb(handler, writer):
 	if handler.request.get('fmt') == "html":
-		WritePhoneOrWebToWeb(handler, writer)
+		WriteToWeb(handler, writer)
 	else:
 		WriteToPhone(handler,writer)
 
@@ -409,9 +409,9 @@ def WritePhoneOrWeb(handler, writer):
 def WriteToWeb(handler, writer):
 	handler.response.headers['Content-Type'] = 'text/html'
 	handler.response.out.write('''<html><body>''')
-	handler.response.out.write('''<em>The server will send this to the component:</em><p/>''')
+	handler.response.out.write('''<i>The server will send this response to the smartphone: &nbsp;</i>''')
 	writer()
-	handler.response.out.write('''<p><a href="/"><i>Return to Main Page</i></a>''')
+	handler.response.out.write('''<p><a href="/"><i>Return to Main Page</i></a></p>''')
 	handler.response.out.write('''</body></html>''')
 
 # ------------------------------------------------------------------------------

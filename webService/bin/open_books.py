@@ -62,7 +62,7 @@ def getInfo(isbn):
 	try:
 		result = urllib2.urlopen(url_json)
 		contents = result.read()
-		logging.debug('Received from openlibrary: %s '%(contents))
+		logging.debug('Received from openlibrary with jscmd=data: %s '%(contents))
 	except urllib2.URLError:
 		logging.exception("Exception while fetching url %s"%url_json)
 		return data

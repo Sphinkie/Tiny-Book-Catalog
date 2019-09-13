@@ -44,3 +44,27 @@ every day 02:00
  
 
 
+-- Balises html
+-- -----------------------
+<b>	bold	gras
+<i>	italic	italique	(on a aussi <em>)
+<p>	paragraphe
+<ul> un-ordened list liste a partilles
+	<li>	chaque element de la liste
+
+<a>		lien vers une url
+<br/>	saut de ligne
+&nbsp;	blanc insécable
+
+<table>
+	<tr> ligne 1
+		<td>case 1</td>
+		<td>case 2</td>
+	</tr> fin ligne
+	<tr> ligne 2
+		<th>header 1 en style gras</th>
+		<th>header 2 en style gras</th>
+	</tr> fin ligne
+<table>
+
+<form>	formulaire (bouton, textbox, etc)
