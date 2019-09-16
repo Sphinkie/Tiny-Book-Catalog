@@ -90,7 +90,7 @@ def getInfoFull(isbn):
 		logging.debug('Received from openlibrary: %s '%(contents))
 	except urllib2.URLError:
 		logging.exception("Exception while fetching url %s"%url_json)
-		logging.error("Error: " + str(result.status_code))
+		# if result: logging.error("Error: " + str(result.status_code))
 		return data
 	# -----------------------------------------------------------
 	# contents : var_OLBookInfo = {flux json};

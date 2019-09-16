@@ -81,30 +81,28 @@ class catalog():
 	def setBookOwner(self, isbn, owner):
 		entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", isbn).get()
 		if entry:
-			entry.owner = owner
+			entry.owner   = owner
 			entry.put()
 
 	# ----------------------------------------------------------------------------
 	# Réception d'une demande de livre (ISBN requested by User)
 	# ----------------------------------------------------------------------------
 	def setBookRequirer(self, isbn, user):
-		# Ce livre est-t-il bien connu en base ?
 		entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", isbn).get()
+		# Si le livre est connu en base, on positionne le requirer
 		if entry:
-			# Si oui
-			entry.requirer = user
+			entry.requirer   = user
 			entry.put()
 
 	# ----------------------------------------------------------------------------
 	# Suppression d'un livre (ISBN deleted by User)
 	# ----------------------------------------------------------------------------
 	def removeBook(self, isbn, user):
-		# On recupère le owner du livre
 		entry = db.GqlQuery("SELECT * FROM StoredData WHERE tag = :1", isbn).get()
 		if entry:
-			# Si c'est le même user qui demande la suppression: alors on peut la faire
+			# Si le owner est aussi le user qui demande la suppression: alors on peut la faire
 			if entry.owner == user: 
-				entry.description = "Livre de ["+entry.owner+"] supprime par ["+user+"]"	# Ne pas mettre d'accents dans ce texte: plantage unicode/ascii
+				entry.description = u"Livre de ["+entry.owner+"] supprime par ["+user+"]"
 				entry.put()
 				entry.delete()
 
@@ -190,7 +188,6 @@ class catalog():
 			publishedDate = ""
 		# On remplit la liste des valeurs à retourner à l'application
 		return [title,author,publisher,publishedDate,thumbnail,requirer,owner]
-
 		
 	# -------------------------------------------------------------------------------
 	# Renvoie le résumé du livre (dans une liste)

@@ -10,6 +10,7 @@
 
 import logging
 from catalog import catalog
+from Users   import Users
 
 from cgi import escape	# Cette library remplace < par &lt;	> par &gt; et & par &amp;
 from google.appengine.ext import webapp
@@ -17,6 +18,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from django.utils import simplejson as json
 
 cat = catalog()
+users = Users()
 
 ### =============================================================================
 ### Page principale
@@ -29,7 +31,7 @@ class MainPage(webapp.RequestHandler):
 	def get(self):
 		self.write_page_header()
 		self.write_page_intro_message() 	# affiche le message d'intro
-		#self.write_available_operations()
+		self.write_available_operations()
 		self.write_stored_data()			# affiche le contenu de la base
 		self.write_page_footer()
 
@@ -123,7 +125,6 @@ class MainPage(webapp.RequestHandler):
 		entries = cat.getAllItems()
 		# Lignes suivantes
 		for e in entries:
-			entry_key_string = str(e.key())
 			self.response.out.write('''<tr>''')
 			# Affiche le code ISBN
 			self.response.out.write('''<td>%s</td>''' % escape(e.tag))
@@ -148,6 +149,7 @@ class MainPage(webapp.RequestHandler):
 			# Affiche la date de création en base
 			self.response.out.write('''<td><font size="-1">%s</font></td>''' % e.date.ctime())
 			# Affiche un bouton DELETE
+			entry_key_string = str(e.key())
 			self.response.out.write('''
 				<td><form action="/deleteentry" method="post" enctype=application/x-www-form-urlencoded>
 					<input type="hidden" name="entry_key_string" value="%s">
@@ -192,7 +194,67 @@ class StoreAValue(webapp.RequestHandler):
 	# Traitement du bouton "Store a value"
 	# Note: get() retourne 1 element, fetch() retourne une liste, et run() retourne un objet itérable
 	# ------------------------------------------------------------------------------
-	def store_a_value(self, tag, command):
+	def store_a_value(self, tag, value):
+		if tag[0] == '%':
+			self.executeCmd(tag, value.split(':'))
+		else:
+			self.setCommand(tag, value)
+
+	def executeCmd(self, command, parameters):
+		command_list = command.split(':')
+		# ----------------------------------------------------------------------------
+		# Ajout d'un nouveau livre: "%createBook"+"ISBN" 
+		# ----------------------------------------------------------------------------
+		if command == "%createBook":
+			cat.createBook(parameters[0])
+			result = ["%CREATED", command, parameters]
+		# ----------------------------------------------------------------------------
+		# Affectation d'un propriétaire au livre: "%setOwner"+"ISBN:USERID"
+		# ----------------------------------------------------------------------------
+		elif command == "%setOwner":
+			cat.setBookOwner(parameters[0], parameters[1])
+			result = ["%UPDATED", command, parameters]
+		# ----------------------------------------------------------------------------
+		# Suppression d'un livre (deleted by) : "%deleteBook"+"ISBN:USERID"
+		# ----------------------------------------------------------------------------
+		elif command == "%deleteBook":
+			cat.removeBook(parameters[0], parameters[1])
+			result = ["%DELETED", command, parameters]
+		# ----------------------------------------------------------------------------
+		# Réception d'une demande de livre (requested by): "%requestBook"+"ISBN:USERID"
+		# ----------------------------------------------------------------------------
+		elif command == "%requestBook":
+			cat.setBookRequirer(parameters[0], parameters[1])
+			result = ["%UPDATED", command, parameters]
+		# ----------------------------------------------------------------------------
+		# Ajout d'un nouveau user: "%createUser"+"John". La fonction retourne le USER ID
+		# ----------------------------------------------------------------------------
+		elif command == "%createUser":
+			user_id = users.createUser(parameters[0])
+			result = ["%USER", parameters[0], user_id]
+		# ----------------------------------------------------------------------------
+		# set User Group: "%setUserGroup"+"UserId:GroupName".
+		# ----------------------------------------------------------------------------
+		elif command == "%setUserGroup":
+			users.setGroup(parameters[0],parameters[1])
+			result = ["%UPDATED", command, parameters]
+		# ----------------------------------------------------------------------------
+		# set User Role: "%setUserRole"+"UserId:role". (Member, Waiting, Founder)
+		# ----------------------------------------------------------------------------
+		elif command == "%setUserRole":
+			users.setRole(parameters[0],parameters[1])
+			result = ["%UPDATED", command, parameters]
+		# ----------------------------------------------------------------------------
+		# Autres cas
+		# ----------------------------------------------------------------------------
+		else:
+			result = ["%UNDEFINED", command, parameters]
+		# Send back a confirmation message. 
+		# The TinyWebDB component ignores the message (it just notes that it was received), 
+		# but other components might use this.
+		WritePhoneOrWeb(self, lambda : json.dump(result, self.response.out))
+
+	def setCommand(self, tag, command):
 		command_list = command.split(':')
 		# ----------------------------------------------------------------------------
 		# Ajout d'un nouveau livre: "create"
@@ -239,7 +301,7 @@ class StoreAValue(webapp.RequestHandler):
 		# The TinyWebDB component ignores the message (it just notes that it was received), 
 		# but other components might use this.
 		WritePhoneOrWeb(self, lambda : json.dump(result, self.response.out))
-
+		
 	# ---------------------------------------------------------------
 	# Appelé lorsque l'on accède à la page avec un Browser
 	# ---------------------------------------------------------------
@@ -254,8 +316,9 @@ class StoreAValue(webapp.RequestHandler):
 		</form>
 		<br/>
 		<p>Examples: <br/>
-			9782253121206 create<br/>
-			9782707322210 create<br/>
+			9782070101801<br/>
+			9782253121206<br/>
+			9782707322210<br/>
 			9782859406370<br/>
 			9782070612888<br/>
 			9782253049418 Pas de resumé<br/>
