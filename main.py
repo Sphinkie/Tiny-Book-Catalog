@@ -10,7 +10,7 @@
 
 import logging
 from catalog import catalog
-from Users   import Users
+from Users       import Users
 
 from cgi import escape	# Cette library remplace < par &lt;	> par &gt; et & par &amp;
 from google.appengine.ext import webapp
